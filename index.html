@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg:#0d0f14; --bg2:#13161e; --bg3:#1a1e28; --bg4:#222736;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --text:#f0f2f7; --text2:#8b90a0; --text3:#555a6a;
+  --accent:#4f8ef7; --accent2:#7c6af7;
+  --green:#3ecf8e; --red:#f75f5f; --amber:#f7a94f; --pink:#f75fa8; --teal:#4fcfcf;
+  --radius:12px; --radius-sm:8px;
+  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;letter-spacing:-0.02em}
+.logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px}
+.live-pill{display:flex;align-items:center;gap:5px;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.25);color:var(--green);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+.topbar-center{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-nav-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background 0.15s}
+.month-nav-btn:hover{background:var(--bg4);color:var(--text)}
+.month-display{font-size:13px;font-weight:500;min-width:110px;text-align:center;color:var(--text)}
+.month-display.current{color:var(--accent)}
+.view-tabs{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px}
+.view-tab{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;color:var(--text3);transition:all 0.15s;border:none;background:none}
+.view-tab.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ts{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.btn-icon{width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s}
+.btn-icon:hover{background:var(--bg4);color:var(--text)}
+.btn-icon.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* LAYOUT */
+.layout{display:flex;flex:1}
+.sidebar{width:52px;min-height:calc(100vh - 56px);border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;position:sticky;top:56px;height:calc(100vh - 56px)}
+.nav-item{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:16px;transition:background 0.15s;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--text2)}
+.nav-item.active{background:rgba(79,142,247,0.15);color:var(--accent)}
+.nav-item .tip{position:absolute;left:46px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:4px 9px;border-radius:6px;font-size:12px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:200}
+.nav-item:hover .tip{opacity:1}
+.nav-div{width:20px;height:1px;background:var(--border);margin:4px 0}
+.main{flex:1;padding:22px;overflow-y:auto;max-width:1200px}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:20px}
+.page-title{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text2)}
+
+/* PAST MONTH BANNER */
+.past-banner{display:flex;align-items:center;justify-content:space-between;background:rgba(247,169,79,0.08);border:1px solid rgba(247,169,79,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--amber)}
+.past-banner span{font-size:12px;color:var(--text2)}
+
+/* METRICS */
+.metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:18px}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:border-color 0.15s;position:relative}
+.metric-card:hover{border-color:var(--border2)}
+.metric-card.editable{cursor:pointer}
+.metric-card.editable:hover::after{content:'✎';position:absolute;top:10px;right:12px;font-size:11px;color:var(--text3)}
+.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px}
+.metric-value{font-size:24px;font-weight:600;letter-spacing:-0.02em;line-height:1;margin-bottom:5px}
+.metric-delta{font-size:12px;display:flex;align-items:center;gap:4px}
+.delta-up{color:var(--green)}.delta-down{color:var(--red)}.delta-neutral{color:var(--text3)}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.card-title{font-size:13px;font-weight:500}
+.card-badge{font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:3px 8px;border-radius:20px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.two-col{grid-template-columns:1fr}}
+
+/* CHARTS */
+.chart-wrap{position:relative;width:100%}
+.h220{height:220px}.h180{height:180px}.h160{height:160px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.legend-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-line{width:14px;height:2px;flex-shrink:0}
+
+/* PLATFORM TABLE */
+.plat-table{width:100%;border-collapse:collapse}
+.plat-table th{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:500;padding:0 0 10px;border-bottom:1px solid var(--border);text-align:left}
+.plat-table th:not(:first-child){text-align:right}
+.plat-table td{padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.plat-table tr:last-child td{border-bottom:none}
+.plat-table td:not(:first-child){text-align:right}
+.plat-cell{display:flex;align-items:center;gap:10px}
+.plat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.status-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:4px}
+.s-live{background:var(--green)}.s-demo{background:var(--amber)}
+
+/* PAGES TABLE */
+.pg-table{width:100%;border-collapse:collapse}
+.pg-table th{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:500;padding:0 0 10px;border-bottom:1px solid var(--border);text-align:left}
+.pg-table th:not(:first-child){text-align:right}
+.pg-table td{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pg-table tr:last-child td{border-bottom:none}
+.pg-table td:not(:first-child){text-align:right}
+.ctr-pill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;display:inline-block}
+.ctr-h{background:rgba(62,207,142,0.1);color:var(--green)}
+.ctr-m{background:rgba(247,169,79,0.1);color:var(--amber)}
+.ctr-l{background:rgba(247,95,95,0.1);color:var(--red)}
+
+/* BUDGET */
+.budget-progress{margin-bottom:20px}
+.budget-progress-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:7px}
+.budget-progress-bar{height:10px;background:var(--bg4);border-radius:5px}
+.budget-progress-fill{height:100%;border-radius:5px;transition:width 0.4s}
+.ch-list{display:flex;flex-direction:column;gap:0}
+.ch-row{display:grid;grid-template-columns:1fr 2fr 130px 80px;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.ch-row:last-child{border-bottom:none}
+.ch-name{font-size:13px;font-weight:500}
+.ch-bar-wrap{display:flex;align-items:center;gap:8px}
+.ch-bar-bg{flex:1;height:6px;background:var(--bg4);border-radius:3px}
+.ch-bar-fill{height:100%;border-radius:3px}
+.ch-amount{font-size:12px;color:var(--text2);font-family:var(--mono);text-align:right}
+.ch-actions{display:flex;gap:6px;justify-content:flex-end}
+.ch-btn{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.15s}
+.ch-btn:hover{background:var(--bg4);color:var(--text)}
+.ch-btn.danger:hover{background:rgba(247,95,95,0.15);color:var(--red);border-color:rgba(247,95,95,0.3)}
+
+/* SPEND LOG */
+.spend-log{margin-top:6px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.spend-log-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.spend-entry{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.spend-entry:last-of-type{border-bottom:none}
+.spend-entry-del{color:var(--text3);cursor:pointer;font-size:14px;padding:0 4px}
+.spend-entry-del:hover{color:var(--red)}
+.spend-add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.spend-input{flex:1;min-width:80px;padding:6px 9px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+.spend-input:focus{border-color:var(--accent)}
+.spend-input::placeholder{color:var(--text3)}
+.spend-add-btn{padding:6px 12px;border-radius:6px;background:var(--accent);border:none;color:#fff;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer}
+.spend-add-btn:hover{opacity:0.85}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:22px;width:100%;max-width:420px}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal-row{margin-bottom:12px}
+.modal-label{font-size:12px;color:var(--text2);margin-bottom:5px}
+.modal-input{width:100%;padding:9px 11px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.modal-input:focus{border-color:var(--accent)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal-btn{padding:8px 16px;border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)}
+.modal-btn:hover{background:var(--bg4)}
+.modal-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.modal-btn.primary:hover{opacity:0.85}
+
+/* COMPARISON VIEW */
+.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.compare-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.compare-period{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.compare-metric{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.compare-metric:last-child{border-bottom:none}
+.compare-label{color:var(--text2)}
+.compare-val{font-weight:500}
+.compare-diff{font-size:11px;padding:2px 7px;border-radius:20px;margin-left:8px}
+.diff-up{background:rgba(62,207,142,0.1);color:var(--green)}
+.diff-down{background:rgba(247,95,95,0.1);color:var(--red)}
+.diff-flat{background:var(--bg4);color:var(--text3)}
+
+/* DATA ENTRY MODAL */
+.entry-note{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5}
+
+/* SETTINGS */
+.settings-section{margin-bottom:24px}
+.settings-section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.setting-label{font-size:12px;font-weight:500;color:var(--text2)}
+.setting-input{width:100%;padding:8px 11px;border-radius:var(--radius-sm);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color 0.15s}
+.setting-input:focus{border-color:var(--accent)}
+.setting-input::placeholder{color:var(--text3)}
+.setting-hint{font-size:11px;color:var(--text3);line-height:1.5}
+.setting-hint a{color:var(--accent);text-decoration:none}
+.conn-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.conn-live{background:rgba(62,207,142,0.1);color:var(--green);border:1px solid rgba(62,207,142,0.2)}
+.conn-demo{background:rgba(247,169,79,0.1);color:var(--amber);border:1px solid rgba(247,169,79,0.2)}
+.save-btn{width:100%;padding:10px;border-radius:var(--radius-sm);background:var(--accent);border:none;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.15s;margin-top:6px}
+.save-btn:hover{opacity:0.85}
+.notice{background:rgba(79,142,247,0.07);border:1px solid rgba(79,142,247,0.18);border-radius:var(--radius-sm);padding:11px 13px;font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.6}
+.notice strong{color:var(--accent)}
+
+/* GUIDE */
+.guide-step{display:flex;gap:12px;margin-bottom:18px}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(79,142,247,0.12);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;border:1px solid rgba(79,142,247,0.2)}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.step-desc a{color:var(--accent);text-decoration:none}
+.step-desc code{font-family:var(--mono);background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
+.platform-guide{margin-bottom:22px}
+.platform-guide-title{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin 0.6s linear}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <div class="logo-icon">🚛</div>
+      <span id="company-name">Moving Co.</span>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+  </div>
+
+  <div class="topbar-center">
+    <div class="month-nav">
+      <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-display current" id="month-display">April 2025</div>
+      <button class="month-nav-btn" onclick="changeMonth(1)" id="next-month-btn">›</button>
+    </div>
+    <div class="view-tabs" id="view-tabs">
+      <button class="view-tab active" onclick="setView('month',this)">Month</button>
+      <button class="view-tab" onclick="setView('quarter',this)">Quarter</button>
+      <button class="view-tab" onclick="setView('year',this)">Year</button>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <span class="ts" id="last-updated">–</span>
+    <button class="btn-icon" title="Refresh" onclick="refreshAll(this)">↻</button>
+    <button class="btn-icon" id="settings-nav-btn" onclick="switchPage('settings')">⚙</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-item active" id="nav-social" onclick="switchPage('social')">📣<div class="tip">Social analytics</div></div>
+    <div class="nav-item" id="nav-web" onclick="switchPage('web')">🌐<div class="tip">Website analytics</div></div>
+    <div class="nav-item" id="nav-budget" onclick="switchPage('budget')">💰<div class="tip">Marketing budget</div></div>
+    <div class="nav-div"></div>
+    <div class="nav-item" id="nav-guide" onclick="switchPage('guide')">📖<div class="tip">Setup guide</div></div>
+    <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">⚙️<div class="tip">Settings</div></div>
+  </div>
+
+  <div class="main">
+
+    <!-- ══════════════ SOCIAL PAGE ══════════════ -->
+    <div class="page active" id="page-social">
+      <div class="page-header">
+        <div class="page-title">Social analytics</div>
+        <div class="page-sub" id="social-sub">Followers, reach &amp; engagement across all platforms</div>
+      </div>
+      <div id="past-banner-social" style="display:none" class="past-banner">
+        📅 Viewing historical data — <span>Click metrics to edit manually</span>
+      </div>
+
+      <!-- MONTH VIEW -->
+      <div id="social-month-view">
+        <div class="metric-row">
+          <div class="metric-card editable" onclick="openMetricEdit('social','total_followers')">
+            <div class="metric-label">Total followers</div>
+            <div class="metric-value" id="s-followers">6,340</div>
+            <div class="metric-delta" id="s-followers-delta"><span class="delta-up">↑ +94 this week</span></div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('social','impressions')">
+            <div class="metric-label">Impressions</div>
+            <div class="metric-value" id="s-impressions">32,810</div>
+            <div class="metric-delta delta-up">↑ +4.2k this week</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('social','engagements')">
+            <div class="metric-label">Engagements</div>
+            <div class="metric-value" id="s-engagements">1,847</div>
+            <div class="metric-delta delta-up">↑ +213 this week</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Avg. eng. rate</div>
+            <div class="metric-value" id="s-engrate">5.6%</div>
+            <div class="metric-delta delta-up">↑ +0.3% vs last wk</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('social','posts')">
+            <div class="metric-label">Posts this month</div>
+            <div class="metric-value" id="s-posts">24</div>
+            <div class="metric-delta delta-neutral">→ Across all platforms</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Follower growth — Mon–Sun current week</div>
+            <div class="card-badge" id="social-source-badge">Demo data</div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-line" style="background:#4f8ef7;height:2px"></div>Facebook</div>
+            <div class="legend-item"><div class="legend-line" style="background:#f75fa8;height:2px"></div>Instagram</div>
+            <div class="legend-item"><div class="legend-line" style="background:#f75f5f;height:2px"></div>YouTube</div>
+            <div class="legend-item"><div class="legend-line" style="background:#f7a94f;height:2px"></div>TikTok</div>
+            <div class="legend-item"><div class="legend-line" style="background:#4fcfcf;height:2px;border-top:2px dashed #4fcfcf;height:0"></div>LinkedIn</div>
+            <div class="legend-item"><div class="legend-line" style="background:#7c6af7;height:2px"></div>Google Business</div>
+          </div>
+          <div class="chart-wrap h220"><canvas id="followerChart" role="img" aria-label="Line chart showing follower growth by platform this week (Mon–Sun)">Follower growth Mon–Sun.</canvas></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Weekly impressions (Mon–Sun)</div>
+            </div>
+            <div class="chart-wrap h180"><canvas id="impressionChart" role="img" aria-label="Bar chart of weekly impressions by platform">Impressions Mon–Sun.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Engagement breakdown</div></div>
+            <div class="chart-wrap h180"><canvas id="engageDonut" role="img" aria-label="Donut chart of engagement types">Engagement types.</canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Platform breakdown</div><div class="card-badge">All platforms</div></div>
+          <table class="plat-table">
+            <thead><tr>
+              <th>Platform</th>
+              <th>Followers</th>
+              <th>Impressions</th>
+              <th>Interactions</th>
+              <th>Eng. rate</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="plat-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COMPARISON VIEW (QoQ / YoY) -->
+      <div id="social-compare-view" style="display:none">
+        <div class="comparison-grid" id="social-compare-grid"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title" id="social-compare-chart-title">Comparison</div></div>
+          <div class="chart-wrap h220"><canvas id="socialCompareChart" role="img" aria-label="Comparison bar chart">Social comparison.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ WEBSITE PAGE ══════════════ -->
+    <div class="page" id="page-web">
+      <div class="page-header">
+        <div class="page-title">Website analytics</div>
+        <div class="page-sub">Page views, sessions &amp; conversions via GA4 + Framer</div>
+      </div>
+      <div id="past-banner-web" style="display:none" class="past-banner">
+        📅 Viewing historical data — <span>Click metrics to edit manually</span>
+      </div>
+
+      <div id="web-month-view">
+        <div class="metric-row">
+          <div class="metric-card editable" onclick="openMetricEdit('web','pageviews')">
+            <div class="metric-label">Page views</div>
+            <div class="metric-value" id="w-pv">3,241</div>
+            <div class="metric-delta delta-up">↑ +14% vs last mo.</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('web','visitors')">
+            <div class="metric-label">Unique visitors</div>
+            <div class="metric-value" id="w-uv">1,884</div>
+            <div class="metric-delta delta-up">↑ +9% vs last mo.</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('web','session')">
+            <div class="metric-label">Avg. session</div>
+            <div class="metric-value" id="w-session">2m 14s</div>
+            <div class="metric-delta delta-up">↑ +18s vs last mo.</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('web','bounce')">
+            <div class="metric-label">Bounce rate</div>
+            <div class="metric-value" id="w-bounce">41%</div>
+            <div class="metric-delta delta-up">↓ −3% vs last mo.</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('web','leads')">
+            <div class="metric-label">Quote requests</div>
+            <div class="metric-value" id="w-leads">67</div>
+            <div class="metric-delta delta-up">↑ +11 vs last mo.</div>
+          </div>
+          <div class="metric-card editable" onclick="openMetricEdit('web','ctr')">
+            <div class="metric-label">Overall CTR</div>
+            <div class="metric-value" id="w-ctr">3.6%</div>
+            <div class="metric-delta delta-up">↑ +0.4% vs last mo.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Daily traffic — this month</div>
+            <div class="card-badge" id="web-source-badge">Demo data</div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-line" style="background:#4f8ef7;height:2px"></div>Page views</div>
+            <div class="legend-item"><div class="legend-line" style="background:#3ecf8e;height:2px"></div>Unique visitors</div>
+          </div>
+          <div class="chart-wrap h220"><canvas id="trafficChart" role="img" aria-label="Line chart of daily traffic this month">Daily traffic.</canvas></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Traffic sources</div></div>
+            <div class="chart-wrap h180"><canvas id="sourceDonut" role="img" aria-label="Traffic sources donut">Traffic sources.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Device split</div></div>
+            <div class="chart-wrap h180"><canvas id="deviceChart" role="img" aria-label="Device split">Device sessions.</canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top pages by CTR</div></div>
+          <table class="pg-table">
+            <thead><tr><th>Page</th><th>Views</th><th>Clicks</th><th>CTR</th></tr></thead>
+            <tbody id="pages-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="web-compare-view" style="display:none">
+        <div class="comparison-grid" id="web-compare-grid"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title" id="web-compare-chart-title">Comparison</div></div>
+          <div class="chart-wrap h220"><canvas id="webCompareChart" role="img" aria-label="Website comparison chart">Web comparison.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ BUDGET PAGE ══════════════ -->
+    <div class="page" id="page-budget">
+      <div class="page-header">
+        <div class="page-title">Marketing budget</div>
+        <div class="page-sub">Configurable channel tracking &amp; spend logging</div>
+      </div>
+      <div id="past-banner-budget" style="display:none" class="past-banner">
+        📅 Viewing historical data — <span>Past months remain editable</span>
+      </div>
+
+      <div id="budget-month-view">
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="metric-label">Monthly budget</div>
+            <div class="metric-value" id="b-total-display">$0</div>
+            <div class="metric-delta delta-neutral" id="b-month-label">→ Loading...</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Spent so far</div>
+            <div class="metric-value" id="b-spent-display">$0</div>
+            <div class="metric-delta" id="b-pct-display">–</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Remaining</div>
+            <div class="metric-value" id="b-rem-display">$0</div>
+            <div class="metric-delta delta-neutral" id="b-days-left">–</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Cost per lead</div>
+            <div class="metric-value" id="b-cpl">–</div>
+            <div class="metric-delta delta-neutral">Based on quote requests</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Active channels</div>
+            <div class="metric-value" id="b-ch-count">0</div>
+            <div class="metric-delta delta-neutral">→ Total channels</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Budget utilization</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="card-badge" id="b-util-badge">0%</div>
+              <button class="ch-btn" onclick="openAddChannel()" style="font-size:12px;padding:4px 10px">+ Add channel</button>
+            </div>
+          </div>
+          <div class="budget-progress">
+            <div class="budget-progress-labels">
+              <span>$0</span>
+              <span id="b-progress-label">$0 of $0</span>
+              <span id="b-progress-max">$0</span>
+            </div>
+            <div class="budget-progress-bar">
+              <div class="budget-progress-fill" id="b-progress-fill" style="width:0%;background:linear-gradient(90deg,#4f8ef7,#7c6af7)"></div>
+            </div>
+          </div>
+          <div class="ch-list" id="ch-list"></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">6-month spend trend</div></div>
+            <div class="chart-wrap h180"><canvas id="spendTrendChart" role="img" aria-label="Monthly spend trend">Monthly spend trend.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Budget allocation</div></div>
+            <div class="chart-wrap h180"><canvas id="allocDonut" role="img" aria-label="Budget allocation donut">Budget by channel.</canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="budget-compare-view" style="display:none">
+        <div class="comparison-grid" id="budget-compare-grid"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title" id="budget-compare-chart-title">Comparison</div></div>
+          <div class="chart-wrap h220"><canvas id="budgetCompareChart" role="img" aria-label="Budget comparison chart">Budget comparison.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ GUIDE PAGE ══════════════ -->
+    <div class="page" id="page-guide">
+      <div class="page-header">
+        <div class="page-title">Integration setup guide</div>
+        <div class="page-sub">Step-by-step instructions for connecting live data</div>
+      </div>
+      <div class="notice"><strong>How it works:</strong> Enter your API credentials in Settings (⚙️). The dashboard saves them only in your browser's local storage — never sent to any server.</div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(79,142,247,0.15);color:#4f8ef7;width:28px;height:28px;border-radius:7px;font-size:11px">Fb</div>Facebook &amp; Instagram (Meta Graph API)</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a Meta Developer App</div><div class="step-desc">Go to <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → "Create App" → Choose "Business". Link your Facebook Page and Instagram Business account.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Add the Pages API &amp; Instagram Graph API products</div><div class="step-desc">In your app dashboard click "Add Product" and add <strong>Facebook Login</strong> and <strong>Instagram Graph API</strong>.</div></div></div>
+        <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Get a long-lived Page Access Token</div><div class="step-desc">Use the <a href="https://developers.facebook.com/tools/explorer/" target="_blank">Graph API Explorer</a> to generate a token with <code>pages_read_engagement</code>, <code>instagram_basic</code>, <code>instagram_manage_insights</code> permissions. Exchange for a long-lived token (60-day expiry).</div></div></div>
+        <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Get your Page ID &amp; Instagram Account ID</div><div class="step-desc">Call <code>GET /me/accounts</code> in Graph Explorer. For Instagram call <code>GET /{page-id}?fields=instagram_business_account</code>. Paste both IDs into Settings.</div></div></div>
+      </div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(247,95,95,0.15);color:#f75f5f;width:28px;height:28px;border-radius:7px;font-size:11px">YT</div>YouTube (YouTube Data API v3)</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a Google Cloud project</div><div class="step-desc">Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → New Project → Enable <strong>YouTube Data API v3</strong> from the API Library.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create an API key</div><div class="step-desc">Credentials → Create Credentials → API Key. Restrict it to "YouTube Data API v3". Paste into Settings → YouTube API Key.</div></div></div>
+        <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Find your Channel ID</div><div class="step-desc">On YouTube, go to your channel → About → Share → Copy Channel ID. Paste into Settings.</div></div></div>
+      </div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(247,169,79,0.15);color:#f7a94f;width:28px;height:28px;border-radius:7px;font-size:11px">TT</div>TikTok (Display API)</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Apply for TikTok Developer access</div><div class="step-desc">Go to <a href="https://developers.tiktok.com" target="_blank">developers.tiktok.com</a> → Create App → Select "Display API". Note: TikTok requires app review.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Get your access token</div><div class="step-desc">After approval, use OAuth 2.0 to get a user access token with scopes <code>user.info.basic</code> and <code>video.list</code>. Paste into Settings.</div></div></div>
+      </div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(79,207,207,0.15);color:#4fcfcf;width:28px;height:28px;border-radius:7px;font-size:11px">in</div>LinkedIn (Marketing API)</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a LinkedIn app</div><div class="step-desc">Go to <a href="https://www.linkedin.com/developers/apps" target="_blank">linkedin.com/developers/apps</a> → Create App. Associate it with your company LinkedIn Page.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Request Marketing Developer Platform</div><div class="step-desc">In Products, request <strong>Marketing Developer Platform</strong>. Approval may take a few days.</div></div></div>
+        <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Get an access token</div><div class="step-desc">Use OAuth 2.0 with scopes <code>r_organization_social</code> and <code>rw_organization_admin</code>. Paste token and Organization URN into Settings.</div></div></div>
+      </div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(62,207,142,0.15);color:#3ecf8e;width:28px;height:28px;border-radius:7px;font-size:11px">G</div>Google Business Profile API</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Enable the API</div><div class="step-desc">Google Cloud Console → API Library → search "Business Profile Performance API" → Enable.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create OAuth 2.0 credentials &amp; authorize</div><div class="step-desc">Use <a href="https://developers.google.com/oauthplayground" target="_blank">OAuth Playground</a> with scope <code>https://www.googleapis.com/auth/business.manage</code>. Paste your refresh token and location name into Settings.</div></div></div>
+      </div>
+      <div class="platform-guide">
+        <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(124,106,247,0.15);color:#7c6af7;width:28px;height:28px;border-radius:7px;font-size:11px">GA</div>Google Analytics 4</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Enable GA4 Data API in Google Cloud</div><div class="step-desc">API Library → Enable <strong>Google Analytics Data API</strong>.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create a Measurement Protocol API Secret</div><div class="step-desc">GA4 Admin → Data Streams → Measurement Protocol → Create secret. Also copy your Property ID (Admin → Property Settings).</div></div></div>
+        <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Paste into Settings</div><div class="step-desc">Enter your GA4 Property ID (e.g. <code>123456789</code>) and the API secret into the GA4 section in Settings.</div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ SETTINGS PAGE ══════════════ -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">Settings &amp; credentials</div>
+        <div class="page-sub">API keys stored only in your browser — never sent to any server</div>
+      </div>
+      <div class="notice"><strong>Privacy note:</strong> All credentials are stored in <code>localStorage</code>. Only share this dashboard on trusted devices.</div>
+      <div class="settings-section">
+        <div class="settings-section-title">General</div>
+        <div class="setting-row"><div class="setting-label">Company name</div><input class="setting-input" id="s-company" placeholder="Your Moving Company" /></div>
+        <div class="setting-row"><div class="setting-label">Monthly budget ($)</div><input class="setting-input" id="s-budget" type="number" placeholder="1500" /></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">Facebook &amp; Instagram (Meta)<span class="conn-badge conn-demo" id="badge-meta">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">Page Access Token</div><input class="setting-input" id="s-meta-token" type="password" placeholder="EAAxxxxxx..." /><div class="setting-hint"><a href="https://developers.facebook.com/tools/explorer/" target="_blank">Get token →</a></div></div>
+        <div class="setting-row"><div class="setting-label">Facebook Page ID</div><input class="setting-input" id="s-meta-page-id" placeholder="123456789012345" /></div>
+        <div class="setting-row"><div class="setting-label">Instagram Account ID</div><input class="setting-input" id="s-ig-id" placeholder="17841400000000000" /></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">YouTube<span class="conn-badge conn-demo" id="badge-youtube">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">YouTube Data API v3 Key</div><input class="setting-input" id="s-yt-key" type="password" placeholder="AIzaSy..." /><div class="setting-hint"><a href="https://console.cloud.google.com/apis/credentials" target="_blank">Create API key →</a></div></div>
+        <div class="setting-row"><div class="setting-label">Channel ID</div><input class="setting-input" id="s-yt-channel" placeholder="UCxxxxxxxxxxxxxxxxxxxxxxxx" /></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">TikTok<span class="conn-badge conn-demo" id="badge-tiktok">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">Access Token</div><input class="setting-input" id="s-tt-token" type="password" placeholder="act.xxxxxx..." /><div class="setting-hint"><a href="https://developers.tiktok.com" target="_blank">TikTok Developer Portal →</a></div></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">LinkedIn<span class="conn-badge conn-demo" id="badge-linkedin">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">Access Token</div><input class="setting-input" id="s-li-token" type="password" placeholder="AQVxxxxxx..." /></div>
+        <div class="setting-row"><div class="setting-label">Organization URN</div><input class="setting-input" id="s-li-org" placeholder="urn:li:organization:12345678" /></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">Google Business Profile<span class="conn-badge conn-demo" id="badge-gbp">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">OAuth Refresh Token</div><input class="setting-input" id="s-gbp-token" type="password" placeholder="1//xxxxxx..." /></div>
+        <div class="setting-row"><div class="setting-label">Location Name</div><input class="setting-input" id="s-gbp-location" placeholder="accounts/123/locations/456" /></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">Google Analytics 4<span class="conn-badge conn-demo" id="badge-ga4">● Demo</span></div>
+        <div class="setting-row"><div class="setting-label">GA4 Property ID</div><input class="setting-input" id="s-ga4-property" placeholder="123456789" /></div>
+        <div class="setting-row"><div class="setting-label">Measurement Protocol API Secret</div><input class="setting-input" id="s-ga4-secret" type="password" placeholder="xxxxxxxxxxxxxxxxxxxx" /></div>
+      </div>
+      <button class="save-btn" onclick="saveSettings()">Save all settings</button>
+      <div style="height:40px"></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">Edit</div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn primary" id="modal-confirm" onclick="confirmModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const today = new Date();
+let currentYear = today.getFullYear();
+let currentMonth = today.getMonth(); // 0-indexed
+let currentView = 'month'; // 'month','quarter','year'
+let currentPage = 'social';
+let modalCallback = null;
+let charts = {};
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const QUARTERS = ['Q1','Q2','Q3','Q4'];
+const COLORS = {
+  fb:'#4f8ef7', ig:'#f75fa8', yt:'#f75f5f',
+  tt:'#f7a94f', li:'#4fcfcf', gb:'#7c6af7',
+  green:'#3ecf8e', amber:'#f7a94f', red:'#f75f5f'
+};
+
+// ── Storage helpers ──
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}}
+function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+// ── Month key: "2025-04" ──
+function mKey(y,m){return `${y}-${String(m+1).padStart(2,'0')}`}
+function currentMKey(){return mKey(currentYear,currentMonth)}
+function isCurrentMonth(){return currentYear===today.getFullYear()&&currentMonth===today.getMonth()}
+
+// ══════════════════════════════════════════════
+// HISTORICAL DATA STORE
+// ══════════════════════════════════════════════
+
+// social data: { [mKey]: { total_followers, impressions, engagements, posts, platforms:{fb:{followers,impressions,interactions},...} } }
+// web data:    { [mKey]: { pageviews, visitors, session, bounce, leads, ctr } }
+// budget data: { [mKey]: { channels: [{id, name, budget, color, entries:[{amount,note,date}]}] } }
+
+function getSocialData(y,m){
+  const k = mKey(y,m);
+  const stored = lsGet('social_'+k);
+  if(stored) return stored;
+  // Generate plausible demo data
+  const seed = y*100+m;
+  const rng = (base,variance,s)=>Math.round(base*(1+(((seed*s*7+s*31)%100)/100-0.5)*variance));
+  return {
+    total_followers: rng(6200,0.15,1),
+    impressions: rng(30000,0.2,2),
+    engagements: rng(1700,0.2,3),
+    posts: rng(22,0.3,4),
+    platforms: {
+      fb:{followers:rng(2050,0.1,5),impressions:rng(8800,0.2,6),interactions:rng(480,0.25,7)},
+      ig:{followers:rng(1790,0.1,8),impressions:rng(6900,0.2,9),interactions:rng(620,0.25,10)},
+      yt:{followers:rng(900,0.15,11),impressions:rng(6000,0.2,12),interactions:rng(310,0.2,13)},
+      tt:{followers:rng(780,0.2,14),impressions:rng(4500,0.25,15),interactions:rng(290,0.3,16)},
+      li:{followers:rng(430,0.12,17),impressions:rng(2100,0.2,18),interactions:rng(95,0.25,19)},
+      gb:{followers:rng(580,0.08,20),impressions:rng(2700,0.15,21),interactions:rng(55,0.2,22)}
+    }
+  };
+}
+
+function saveSocialData(y,m,data){lsSet('social_'+mKey(y,m),data)}
+
+function getWebData(y,m){
+  const k = mKey(y,m);
+  const stored = lsGet('web_'+k);
+  if(stored) return stored;
+  const seed = y*100+m;
+  const rng = (base,variance,s)=>Math.round(base*(1+(((seed*s*7+s*31)%100)/100-0.5)*variance));
+  return {
+    pageviews: rng(3100,0.2,1),
+    visitors: rng(1800,0.2,2),
+    session: '2m 14s',
+    bounce: rng(41,0.15,3)+'%',
+    leads: rng(60,0.25,4),
+    ctr: (rng(36,0.15,5)/10).toFixed(1)+'%'
+  };
+}
+function saveWebData(y,m,data){lsSet('web_'+mKey(y,m),data)}
+
+// Budget: per-month channel config
+function getDefaultChannels(){
+  return [
+    {id:'ch1',name:'Google Ads',budget:500,color:'#4f8ef7',entries:[{amount:390,note:'Search ads',date:'2025-04-15'}]},
+    {id:'ch2',name:'Facebook & Instagram',budget:300,color:'#f75fa8',entries:[{amount:255,note:'Boosted posts',date:'2025-04-12'}]},
+    {id:'ch3',name:'YouTube Ads',budget:200,color:'#f75f5f',entries:[{amount:120,note:'Pre-roll ads',date:'2025-04-10'}]},
+    {id:'ch4',name:'TikTok Ads',budget:150,color:'#f7a94f',entries:[{amount:75,note:'Branded content',date:'2025-04-08'}]},
+    {id:'ch5',name:'LinkedIn Ads',budget:100,color:'#4fcfcf',entries:[{amount:100,note:'Sponsored posts',date:'2025-04-05'}]},
+    {id:'ch6',name:'Yelp / Local listings',budget:155,color:'#f75f5f',entries:[{amount:155,note:'Annual listing',date:'2025-04-01'}]},
+    {id:'ch7',name:'Direct mail / Flyers',budget:95,color:'#7c6af7',entries:[]},
+  ];
+}
+function getBudgetData(y,m){
+  const stored = lsGet('budget_'+mKey(y,m));
+  if(stored) return stored;
+  // For current month use defaults, for others generate demo
+  if(y===today.getFullYear()&&m===today.getMonth()){
+    const d={channels:getDefaultChannels()};
+    lsSet('budget_'+mKey(y,m),d);
+    return d;
+  }
+  // Past months: generate demo channels with random spend
+  const seed = y*100+m;
+  const rng = (base,variance,s)=>Math.round(base*(1+(((seed*s*7+s*31)%100)/100-0.5)*variance));
+  const chs = getDefaultChannels().map((c,i)=>({
+    ...c,
+    entries:[{amount:rng(Math.round(c.budget*0.75),0.3,i+1),note:'Monthly spend',date:mKey(y,m)+'-15'}]
+  }));
+  return {channels:chs};
+}
+function saveBudgetData(y,m,data){lsSet('budget_'+mKey(y,m),data)}
+
+// ══════════════════════════════════════════════
+// NAVIGATION & VIEW
+// ══════════════════════════════════════════════
+const PAGES = ['social','web','budget','guide','settings'];
+
+function switchPage(id){
+  PAGES.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('active',p===id);
+    const nav=document.getElementById('nav-'+p);
+    if(nav)nav.classList.toggle('active',p===id);
+  });
+  document.getElementById('settings-nav-btn').classList.toggle('active',id==='settings');
+  currentPage=id;
+  // Guide and Settings don't use month selector
+  const useMonth = ['social','web','budget'].includes(id);
+  document.getElementById('view-tabs').style.visibility = useMonth?'visible':'hidden';
+  document.getElementById('month-display').parentElement.style.visibility = useMonth?'visible':'hidden';
+  if(useMonth) renderCurrentPage();
+}
+
+function setView(v,btn){
+  currentView=v;
+  document.querySelectorAll('.view-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCurrentPage();
+}
+
+function changeMonth(dir){
+  currentMonth+=dir;
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  // Can't go into future
+  if(currentYear>today.getFullYear()||(currentYear===today.getFullYear()&&currentMonth>today.getMonth())){
+    currentMonth=today.getMonth();currentYear=today.getFullYear();
+  }
+  updateMonthDisplay();
+  renderCurrentPage();
+}
+
+function updateMonthDisplay(){
+  const isCurrent=isCurrentMonth();
+  const el=document.getElementById('month-display');
+  el.textContent=MONTHS[currentMonth]+' '+currentYear;
+  el.classList.toggle('current',isCurrent);
+  document.getElementById('next-month-btn').disabled=isCurrent;
+  // Past banners
+  ['social','web','budget'].forEach(p=>{
+    const b=document.getElementById('past-banner-'+p);
+    if(b)b.style.display=isCurrent?'none':'flex';
+  });
+}
+
+function renderCurrentPage(){
+  if(currentPage==='social') renderSocial();
+  else if(currentPage==='web') renderWeb();
+  else if(currentPage==='budget') renderBudget();
+}
+
+// ══════════════════════════════════════════════
+// CHART UTILS
+// ══════════════════════════════════════════════
+Chart.defaults.color='#555a6a';
+Chart.defaults.font.family="'DM Sans',sans-serif";
+Chart.defaults.font.size=11;
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+function makeChart(id,config){
+  destroyChart(id);
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,config);
+}
+
+function gridColor(){return 'rgba(255,255,255,0.04)';}
+
+// Mon–Sun labels for current week
+function weekLabels(){
+  const d=new Date();
+  const day=d.getDay(); // 0=Sun
+  const monday=new Date(d);
+  monday.setDate(d.getDate()-(day===0?6:day-1));
+  return Array.from({length:7},(_,i)=>{
+    const dd=new Date(monday);dd.setDate(monday.getDate()+i);
+    return dd.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  });
+}
+
+function monthDayLabels(y,m){
+  const days=new Date(y,m+1,0).getDate();
+  return Array.from({length:days},(_,i)=>String(i+1));
+}
+
+function growSeries(start,end,len,noise=0.05){
+  return Array.from({length:len},(_,i)=>{
+    const base=start+(end-start)*(i/(len-1));
+    return Math.max(0,Math.round(base*(1+(Math.random()-0.5)*noise)));
+  });
+}
+
+// ══════════════════════════════════════════════
+// SOCIAL PAGE
+// ══════════════════════════════════════════════
+const PLATFORM_META = [
+  {key:'fb',label:'Facebook',icon:'Fb',bg:'rgba(79,142,247,0.15)',col:'#4f8ef7'},
+  {key:'ig',label:'Instagram',icon:'Ig',bg:'rgba(247,95,168,0.15)',col:'#f75fa8'},
+  {key:'yt',label:'YouTube',icon:'YT',bg:'rgba(247,95,95,0.15)',col:'#f75f5f'},
+  {key:'tt',label:'TikTok',icon:'TT',bg:'rgba(247,169,79,0.15)',col:'#f7a94f'},
+  {key:'li',label:'LinkedIn',icon:'in',bg:'rgba(79,207,207,0.15)',col:'#4fcfcf'},
+  {key:'gb',label:'Google Business',icon:'G',bg:'rgba(124,106,247,0.15)',col:'#7c6af7'},
+];
+
+function renderSocial(){
+  const data=getSocialData(currentYear,currentMonth);
+  document.getElementById('page-social').querySelector('.page-sub').textContent=
+    currentView==='month'
+      ? `${MONTHS[currentMonth]} ${currentYear} — Followers, reach & engagement`
+      : currentView==='quarter'
+        ? `Quarter comparison — Q${Math.floor(currentMonth/3)+1} ${currentYear}`
+        : `Year comparison — ${currentYear}`;
+
+  if(currentView==='month'){
+    document.getElementById('social-month-view').style.display='';
+    document.getElementById('social-compare-view').style.display='none';
+    // metrics
+    document.getElementById('s-followers').textContent=data.total_followers.toLocaleString();
+    document.getElementById('s-impressions').textContent=data.impressions.toLocaleString();
+    document.getElementById('s-engagements').textContent=data.engagements.toLocaleString();
+    document.getElementById('s-posts').textContent=data.posts;
+    const rate=((data.engagements/data.impressions)*100).toFixed(1)+'%';
+    document.getElementById('s-engrate').textContent=rate;
+    // platform table
+    const tbody=document.getElementById('plat-tbody');
+    tbody.innerHTML=PLATFORM_META.map(p=>{
+      const pd=data.platforms[p.key];
+      const er=pd.impressions>0?((pd.interactions/pd.impressions)*100).toFixed(1)+'%':'–';
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:9px">
+          <div class="plat-icon" style="background:${p.bg};color:${p.col};width:28px;height:28px;border-radius:7px;font-size:10px">${p.icon}</div>
+          <span style="font-weight:500">${p.label}</span>
+        </div></td>
+        <td>${pd.followers.toLocaleString()}</td>
+        <td>${pd.impressions.toLocaleString()}</td>
+        <td>${pd.interactions.toLocaleString()}</td>
+        <td>${er}</td>
+        <td><span style="font-size:11px;color:var(--amber)"><span class="status-dot s-demo"></span>Demo</span></td>
+      </tr>`;
+    }).join('');
+    // charts
+    renderSocialCharts(data);
+  } else {
+    document.getElementById('social-month-view').style.display='none';
+    document.getElementById('social-compare-view').style.display='';
+    renderSocialComparison();
+  }
+}
+
+function renderSocialCharts(data){
+  // Follower growth — Mon–Sun current week
+  const wLabels=weekLabels();
+  const platData=PLATFORM_META.map(p=>({
+    label:p.label,
+    data:growSeries(data.platforms[p.key].followers*0.97,data.platforms[p.key].followers,7,0.01),
+    borderColor:p.col,
+    backgroundColor:p.key==='fb'?'rgba(79,142,247,0.06)':'transparent',
+    fill:p.key==='fb',
+    tension:0.4,pointRadius:2,borderWidth:2,
+    borderDash:p.key==='li'?[5,3]:[]
+  }));
+  makeChart('followerChart',{type:'line',data:{labels:wLabels,datasets:platData},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{color:gridColor()}},y:{grid:{color:gridColor()}}}}});
+
+  // Weekly impressions Mon–Sun by platform (bar)
+  makeChart('impressionChart',{
+    type:'bar',
+    data:{
+      labels:PLATFORM_META.map(p=>p.label),
+      datasets:[{data:PLATFORM_META.map(p=>Math.round(data.platforms[p.key].impressions/4*(0.8+Math.random()*0.4))),backgroundColor:PLATFORM_META.map(p=>p.col),borderRadius:5,borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{grid:{color:gridColor()},ticks:{callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}}
+  });
+
+  // Engagement donut
+  makeChart('engageDonut',{type:'doughnut',data:{labels:['Likes','Shares','Comments','Saves','Clicks'],datasets:[{data:[Math.round(data.engagements*0.31),Math.round(data.engagements*0.13),Math.round(data.engagements*0.11),Math.round(data.engagements*0.09),Math.round(data.engagements*0.08)],backgroundColor:[COLORS.fb,COLORS.ig,COLORS.green,COLORS.tt,COLORS.li],borderWidth:2,borderColor:'#13161e'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'right',labels:{boxWidth:8,padding:10,font:{size:10}}}}}});
+}
+
+function renderSocialComparison(){
+  const isQoQ=currentView==='quarter';
+  const periods=isQoQ?getQoQPeriods():getYoYPeriods();
+  const metrics=['total_followers','impressions','engagements','posts'];
+  const metricLabels={'total_followers':'Total followers','impressions':'Impressions','engagements':'Engagements','posts':'Posts'};
+  renderCompareCards('social-compare-grid',periods,metrics,metricLabels,(y,m)=>getSocialData(y,m));
+  document.getElementById('social-compare-chart-title').textContent=isQoQ?'Quarter-over-quarter comparison':'Year-over-year comparison';
+  renderCompareChart('socialCompareChart',periods,'total_followers','Followers',(y,m)=>getSocialData(y,m).total_followers);
+}
+
+// ══════════════════════════════════════════════
+// WEB PAGE
+// ══════════════════════════════════════════════
+function renderWeb(){
+  const data=getWebData(currentYear,currentMonth);
+  if(currentView==='month'){
+    document.getElementById('web-month-view').style.display='';
+    document.getElementById('web-compare-view').style.display='none';
+    document.getElementById('w-pv').textContent=Number(data.pageviews).toLocaleString();
+    document.getElementById('w-uv').textContent=Number(data.visitors).toLocaleString();
+    document.getElementById('w-session').textContent=data.session;
+    document.getElementById('w-bounce').textContent=data.bounce;
+    document.getElementById('w-leads').textContent=data.leads;
+    document.getElementById('w-ctr').textContent=data.ctr;
+    renderWebCharts(data);
+  } else {
+    document.getElementById('web-month-view').style.display='none';
+    document.getElementById('web-compare-view').style.display='';
+    renderWebComparison();
+  }
+}
+
+function renderWebCharts(data){
+  const days=monthDayLabels(currentYear,currentMonth);
+  const pvMax=Math.round(data.pageviews/days.length*1.8);
+  const pvMin=Math.round(pvMax*0.4);
+  const uvMax=Math.round(data.visitors/days.length*1.8);
+  makeChart('trafficChart',{type:'line',data:{labels:days,datasets:[
+    {label:'Page views',data:growSeries(pvMin,pvMax,days.length,0.2),borderColor:COLORS.fb,backgroundColor:'rgba(79,142,247,0.08)',fill:true,tension:0.4,pointRadius:0,borderWidth:2},
+    {label:'Unique visitors',data:growSeries(Math.round(uvMax*0.4),uvMax,days.length,0.2),borderColor:COLORS.green,fill:false,tension:0.4,pointRadius:0,borderWidth:2,borderDash:[5,3]}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:10,maxRotation:0,font:{size:10}},grid:{color:gridColor()}},y:{grid:{color:gridColor()}}}}});
+
+  makeChart('sourceDonut',{type:'doughnut',data:{labels:['Organic 42%','Direct 28%','Social 19%','Referral 11%'],datasets:[{data:[42,28,19,11],backgroundColor:[COLORS.fb,COLORS.green,COLORS.ig,COLORS.amber],borderWidth:2,borderColor:'#13161e'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:10,font:{size:10}}}}}});
+
+  makeChart('deviceChart',{type:'bar',data:{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[Math.round(data.visitors*0.59),Math.round(data.visitors*0.35),Math.round(data.visitors*0.06)],backgroundColor:[COLORS.fb,COLORS.gb,COLORS.li],borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()}}}}});
+
+  // Pages table
+  const tbody=document.getElementById('pages-tbody');
+  const pages=[
+    {name:'Home',views:Math.round(data.pageviews*0.38),ctr:4.8},
+    {name:'Get a quote',views:Math.round(data.pageviews*0.25),ctr:6.1},
+    {name:'Services',views:Math.round(data.pageviews*0.17),ctr:3.2},
+    {name:'About us',views:Math.round(data.pageviews*0.12),ctr:2.1},
+    {name:'Service areas',views:Math.round(data.pageviews*0.08),ctr:1.4},
+  ];
+  tbody.innerHTML=pages.map(p=>{
+    const cls=p.ctr>=5?'ctr-h':p.ctr>=3?'ctr-m':'ctr-l';
+    return `<tr><td>${p.name}</td><td>${p.views.toLocaleString()}</td><td>${Math.round(p.views*p.ctr/100)}</td><td><span class="ctr-pill ${cls}">${p.ctr}%</span></td></tr>`;
+  }).join('');
+}
+
+function renderWebComparison(){
+  const isQoQ=currentView==='quarter';
+  const periods=isQoQ?getQoQPeriods():getYoYPeriods();
+  const metrics=['pageviews','visitors','leads'];
+  const metricLabels={pageviews:'Page views',visitors:'Unique visitors',leads:'Quote requests'};
+  renderCompareCards('web-compare-grid',periods,metrics,metricLabels,(y,m)=>getWebData(y,m));
+  document.getElementById('web-compare-chart-title').textContent=isQoQ?'Quarter-over-quarter comparison':'Year-over-year comparison';
+  renderCompareChart('webCompareChart',periods,'pageviews','Page views',(y,m)=>getWebData(y,m).pageviews);
+}
+
+// ══════════════════════════════════════════════
+// BUDGET PAGE
+// ══════════════════════════════════════════════
+function renderBudget(){
+  const data=getBudgetData(currentYear,currentMonth);
+  const channels=data.channels||[];
+  if(currentView==='month'){
+    document.getElementById('budget-month-view').style.display='';
+    document.getElementById('budget-compare-view').style.display='none';
+    const totalBudget=channels.reduce((a,c)=>a+c.budget,0);
+    const totalSpent=channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);
+    const remaining=Math.max(0,totalBudget-totalSpent);
+    const pct=totalBudget>0?Math.min(100,Math.round(totalSpent/totalBudget*100)):0;
+    document.getElementById('b-total-display').textContent='$'+totalBudget.toLocaleString();
+    document.getElementById('b-month-label').textContent='→ '+MONTHS[currentMonth]+' '+currentYear;
+    document.getElementById('b-spent-display').textContent='$'+totalSpent.toLocaleString();
+    const pctEl=document.getElementById('b-pct-display');
+    pctEl.textContent=(pct>=90?'⚠ ':'↑ ')+pct+'% utilized';
+    pctEl.className='metric-delta '+(pct>=90?'delta-down':'delta-up');
+    document.getElementById('b-rem-display').textContent='$'+remaining.toLocaleString();
+    document.getElementById('b-ch-count').textContent=channels.length;
+    // CPL
+    const webData=getWebData(currentYear,currentMonth);
+    const leads=webData.leads||0;
+    document.getElementById('b-cpl').textContent=leads>0?'$'+(totalSpent/leads).toFixed(2):'–';
+    // progress bar
+    document.getElementById('b-util-badge').textContent=pct+'%';
+    document.getElementById('b-progress-label').textContent='$'+totalSpent.toLocaleString()+' of $'+totalBudget.toLocaleString();
+    document.getElementById('b-progress-max').textContent='$'+totalBudget.toLocaleString();
+    document.getElementById('b-progress-fill').style.width=pct+'%';
+    document.getElementById('b-progress-fill').style.background=pct>=90?'linear-gradient(90deg,#f7a94f,#f75f5f)':'linear-gradient(90deg,#4f8ef7,#7c6af7)';
+    // ditto days left
+    const daysLeft=new Date(currentYear,currentMonth+1,0).getDate()-today.getDate();
+    document.getElementById('b-days-left').textContent=isCurrentMonth()?(daysLeft>0?'→ '+daysLeft+' days left':'→ Month ended'):'→ Past month';
+    // channel list
+    renderChannelList(data);
+    // charts
+    renderBudgetCharts(data);
+  } else {
+    document.getElementById('budget-month-view').style.display='none';
+    document.getElementById('budget-compare-view').style.display='';
+    renderBudgetComparison();
+  }
+}
+
+function renderChannelList(data){
+  const list=document.getElementById('ch-list');
+  const channels=data.channels||[];
+  if(channels.length===0){
+    list.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No channels yet — click "+ Add channel" to get started</div>';
+    return;
+  }
+  list.innerHTML=channels.map((ch,idx)=>{
+    const spent=ch.entries.reduce((a,e)=>a+e.amount,0);
+    const pct=ch.budget>0?Math.min(100,Math.round(spent/ch.budget*100)):0;
+    const overBudget=spent>ch.budget;
+    const entriesHtml=ch.entries.map((e,ei)=>`
+      <div class="spend-entry">
+        <span style="color:var(--text2)">${e.date}</span>
+        <span style="flex:1;padding:0 10px">${e.note||'–'}</span>
+        <span style="font-family:var(--mono);color:var(--text)">$${e.amount.toLocaleString()}</span>
+        <span class="spend-entry-del" onclick="deleteSpendEntry(${idx},${ei})" title="Remove">×</span>
+      </div>`).join('');
+    return `
+      <div>
+        <div class="ch-row">
+          <div>
+            <div class="ch-name">${ch.name}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">Budget: $${ch.budget.toLocaleString()}</div>
+          </div>
+          <div class="ch-bar-wrap">
+            <div class="ch-bar-bg"><div class="ch-bar-fill" style="width:${pct}%;background:${overBudget?'#f75f5f':ch.color}"></div></div>
+          </div>
+          <div class="ch-amount ${overBudget?'delta-down':''}">$${spent.toLocaleString()} / $${ch.budget.toLocaleString()}</div>
+          <div class="ch-actions">
+            <button class="ch-btn" onclick="toggleSpendLog(${idx})" title="Log spend">+ Spend</button>
+            <button class="ch-btn" onclick="openEditChannel(${idx})" title="Edit">✎</button>
+            <button class="ch-btn danger" onclick="deleteChannel(${idx})" title="Delete">✕</button>
+          </div>
+        </div>
+        <div class="spend-log" id="spend-log-${idx}" style="display:none;margin:0 0 2px">
+          <div class="spend-log-title">Spend entries — ${ch.name}</div>
+          ${entriesHtml}
+          <div class="spend-add-row">
+            <input class="spend-input" id="se-amount-${idx}" type="number" placeholder="Amount ($)" style="max-width:120px">
+            <input class="spend-input" id="se-note-${idx}" type="text" placeholder="Note (optional)" style="flex:2">
+            <input class="spend-input" id="se-date-${idx}" type="date" value="${today.toISOString().slice(0,10)}" style="max-width:140px">
+            <button class="spend-add-btn" onclick="addSpendEntry(${idx})">Add</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSpendLog(idx){
+  const el=document.getElementById('spend-log-'+idx);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function addSpendEntry(idx){
+  const data=getBudgetData(currentYear,currentMonth);
+  const amount=parseFloat(document.getElementById('se-amount-'+idx).value);
+  const note=document.getElementById('se-note-'+idx).value.trim();
+  const date=document.getElementById('se-date-'+idx).value;
+  if(!amount||amount<=0){alert('Please enter a valid amount.');return;}
+  data.channels[idx].entries.push({amount,note:note||'Spend',date:date||today.toISOString().slice(0,10)});
+  saveBudgetData(currentYear,currentMonth,data);
+  renderBudget();
+  // re-open the log
+  setTimeout(()=>toggleSpendLog(idx),50);
+}
+
+function deleteSpendEntry(chIdx,eIdx){
+  if(!confirm('Remove this spend entry?'))return;
+  const data=getBudgetData(currentYear,currentMonth);
+  data.channels[chIdx].entries.splice(eIdx,1);
+  saveBudgetData(currentYear,currentMonth,data);
+  renderBudget();
+  setTimeout(()=>toggleSpendLog(chIdx),50);
+}
+
+function openAddChannel(){
+  document.getElementById('modal-title').textContent='Add new channel';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row"><div class="modal-label">Channel name</div><input class="modal-input" id="m-ch-name" placeholder="e.g. Merch, Sponsorship, Radio" autofocus></div>
+    <div class="modal-row"><div class="modal-label">Monthly budget ($)</div><input class="modal-input" id="m-ch-budget" type="number" placeholder="100"></div>
+    <div class="modal-row"><div class="modal-label">Color</div><input type="color" id="m-ch-color" value="#4f8ef7" style="width:48px;height:32px;border:1px solid var(--border2);border-radius:6px;background:none;cursor:pointer;padding:2px"></div>
+    <div class="modal-row"><div class="modal-label">Apply to</div>
+      <select class="modal-input" id="m-ch-scope">
+        <option value="this">This month only (${MONTHS[currentMonth]} ${currentYear})</option>
+        <option value="forward">This month and all future months</option>
+      </select>
+    </div>`;
+  modalCallback=()=>{
+    const name=document.getElementById('m-ch-name').value.trim();
+    const budget=parseFloat(document.getElementById('m-ch-budget').value)||0;
+    const color=document.getElementById('m-ch-color').value;
+    const scope=document.getElementById('m-ch-scope').value;
+    if(!name){alert('Please enter a channel name.');return false;}
+    const newCh={id:'ch'+Date.now(),name,budget,color,entries:[]};
+    const data=getBudgetData(currentYear,currentMonth);
+    data.channels.push(newCh);
+    saveBudgetData(currentYear,currentMonth,data);
+    if(scope==='forward'){
+      // Add to all future months that have stored data
+      const keys=Object.keys(localStorage).filter(k=>k.startsWith('budget_'));
+      keys.forEach(k=>{
+        const [,yk,mk]=k.match(/budget_(\d+)-(\d+)/)||[];
+        if(yk&&mk){
+          const y=parseInt(yk),m=parseInt(mk)-1;
+          if(y>currentYear||(y===currentYear&&m>currentMonth)){
+            const d=lsGet(k)||{channels:[]};
+            d.channels.push({...newCh,entries:[]});
+            lsSet(k,d);
+          }
+        }
+      });
+    }
+    renderBudget();
+    return true;
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
+function openEditChannel(idx){
+  const data=getBudgetData(currentYear,currentMonth);
+  const ch=data.channels[idx];
+  document.getElementById('modal-title').textContent='Edit channel';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row"><div class="modal-label">Channel name</div><input class="modal-input" id="m-ch-name" value="${ch.name}"></div>
+    <div class="modal-row"><div class="modal-label">Monthly budget ($)</div><input class="modal-input" id="m-ch-budget" type="number" value="${ch.budget}"></div>
+    <div class="modal-row"><div class="modal-label">Color</div><input type="color" id="m-ch-color" value="${ch.color}" style="width:48px;height:32px;border:1px solid var(--border2);border-radius:6px;background:none;cursor:pointer;padding:2px"></div>
+    <div class="modal-row"><div class="modal-label">Notes (optional)</div><input class="modal-input" id="m-ch-notes" placeholder="e.g. Annual contract, seasonal..." value="${ch.notes||''}"></div>`;
+  modalCallback=()=>{
+    ch.name=document.getElementById('m-ch-name').value.trim()||ch.name;
+    ch.budget=parseFloat(document.getElementById('m-ch-budget').value)||ch.budget;
+    ch.color=document.getElementById('m-ch-color').value;
+    ch.notes=document.getElementById('m-ch-notes').value;
+    saveBudgetData(currentYear,currentMonth,data);
+    renderBudget();
+    return true;
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
+function deleteChannel(idx){
+  if(!confirm('Delete this channel? This only removes it from the currently viewed month.'))return;
+  const data=getBudgetData(currentYear,currentMonth);
+  data.channels.splice(idx,1);
+  saveBudgetData(currentYear,currentMonth,data);
+  renderBudget();
+}
+
+function renderBudgetCharts(data){
+  const channels=data.channels||[];
+  // 6-month trend
+  const months6=[];
+  for(let i=5;i>=0;i--){
+    let m=currentMonth-i,y=currentYear;
+    if(m<0){m+=12;y--;}
+    const d=getBudgetData(y,m);
+    const spent=d.channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);
+    const budget=d.channels.reduce((a,c)=>a+c.budget,0);
+    months6.push({label:MONTHS[m].slice(0,3),spent,budget});
+  }
+  makeChart('spendTrendChart',{type:'bar',data:{labels:months6.map(m=>m.label),datasets:[
+    {label:'Spend',data:months6.map(m=>m.spent),backgroundColor:COLORS.fb,borderRadius:5,borderSkipped:false},
+    {label:'Budget',data:months6.map(m=>m.budget),type:'line',borderColor:COLORS.green,borderDash:[5,3],borderWidth:2,pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()},ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
+
+  // Allocation donut
+  if(channels.length>0){
+    makeChart('allocDonut',{type:'doughnut',data:{labels:channels.map(c=>c.name),datasets:[{data:channels.map(c=>c.budget),backgroundColor:channels.map(c=>c.color),borderWidth:2,borderColor:'#13161e'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{boxWidth:8,padding:8,font:{size:10}}}}}});
+  }
+}
+
+function renderBudgetComparison(){
+  const isQoQ=currentView==='quarter';
+  const periods=isQoQ?getQoQPeriods():getYoYPeriods();
+  // Custom budget comparison
+  const grid=document.getElementById('budget-compare-grid');
+  grid.innerHTML=periods.map(p=>{
+    const months=p.months;
+    let totalBudget=0,totalSpent=0;
+    months.forEach(([y,m])=>{
+      const d=getBudgetData(y,m);
+      totalBudget+=d.channels.reduce((a,c)=>a+c.budget,0);
+      totalSpent+=d.channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);
+    });
+    const pct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
+    return `<div class="compare-card">
+      <div class="compare-period">${p.label}</div>
+      <div class="compare-metric"><span class="compare-label">Total budget</span><span class="compare-val">$${totalBudget.toLocaleString()}</span></div>
+      <div class="compare-metric"><span class="compare-label">Total spent</span><span class="compare-val">$${totalSpent.toLocaleString()}</span></div>
+      <div class="compare-metric"><span class="compare-label">Utilization</span><span class="compare-val">${pct}%</span></div>
+      <div class="compare-metric"><span class="compare-label">Remaining</span><span class="compare-val">$${Math.max(0,totalBudget-totalSpent).toLocaleString()}</span></div>
+    </div>`;
+  }).join('');
+  // Chart: monthly spend across periods
+  document.getElementById('budget-compare-chart-title').textContent=isQoQ?'Quarter-over-quarter spend':'Year-over-year spend';
+  const labels=isQoQ?['Month 1','Month 2','Month 3']:MONTHS.map(m=>m.slice(0,3));
+  const datasets=periods.map((p,pi)=>({
+    label:p.label,
+    data:p.months.map(([y,m])=>{const d=getBudgetData(y,m);return d.channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);}),
+    backgroundColor:Object.values(COLORS)[pi],
+    borderRadius:5,borderSkipped:false,
+    ...(isQoQ?{}:{type:'line',borderColor:Object.values(COLORS)[pi],fill:false,borderWidth:2,pointRadius:3,tension:0.3})
+  }));
+  makeChart('budgetCompareChart',{type:'bar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:11}}}},scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()},ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
+}
+
+// ══════════════════════════════════════════════
+// COMPARISON HELPERS
+// ══════════════════════════════════════════════
+function getQoQPeriods(){
+  const q=Math.floor(currentMonth/3);
+  // Current quarter + previous quarter
+  const periods=[];
+  for(let i=1;i>=0;i--){
+    let qIdx=q-i,y=currentYear;
+    if(qIdx<0){qIdx+=4;y--;}
+    const startM=qIdx*3;
+    periods.push({
+      label:`Q${qIdx+1} ${y}`,
+      months:[[y,startM],[y,startM+1],[y,startM+2]]
+    });
+  }
+  return periods;
+}
+
+function getYoYPeriods(){
+  // This year's months so far vs last year same months
+  const thisYear={label:`${currentYear}`,months:Array.from({length:currentMonth+1},(_,i)=>[currentYear,i])};
+  const lastYear={label:`${currentYear-1}`,months:Array.from({length:currentMonth+1},(_,i)=>[currentYear-1,i])};
+  return [lastYear,thisYear];
+}
+
+function renderCompareCards(containerId,periods,metricKeys,metricLabels,getDataFn){
+  const container=document.getElementById(containerId);
+  container.innerHTML=periods.map((p,pi)=>{
+    // Aggregate across all months in period
+    const agg={};
+    metricKeys.forEach(k=>{agg[k]=0;});
+    p.months.forEach(([y,m])=>{
+      const d=getDataFn(y,m);
+      metricKeys.forEach(k=>{agg[k]+=(parseFloat(d[k])||0);});
+    });
+    // Get diff vs prev period
+    const prevPeriod=periods[pi-1];
+    const prevAgg={};
+    if(prevPeriod){
+      metricKeys.forEach(k=>{prevAgg[k]=0;});
+      prevPeriod.months.forEach(([y,m])=>{
+        const d=getDataFn(y,m);
+        metricKeys.forEach(k=>{prevAgg[k]+=(parseFloat(d[k])||0);});
+      });
+    }
+    const rows=metricKeys.map(k=>{
+      const val=Math.round(agg[k]);
+      let diffHtml='';
+      if(prevPeriod&&prevAgg[k]>0){
+        const diff=Math.round(((agg[k]-prevAgg[k])/prevAgg[k])*100);
+        const cls=diff>=0?'diff-up':'diff-down';
+        diffHtml=`<span class="compare-diff ${cls}">${diff>=0?'+':''}${diff}%</span>`;
+      }
+      return `<div class="compare-metric"><span class="compare-label">${metricLabels[k]}</span><span class="compare-val">${val.toLocaleString()}${diffHtml}</span></div>`;
+    }).join('');
+    return `<div class="compare-card"><div class="compare-period">${p.label}</div>${rows}</div>`;
+  }).join('');
+}
+
+function renderCompareChart(canvasId,periods,metricKey,label,getValFn){
+  const isQoQ=currentView==='quarter';
+  const labels=isQoQ?['Month 1','Month 2','Month 3']:MONTHS.map(m=>m.slice(0,3));
+  const datasets=periods.map((p,i)=>({
+    label:p.label,
+    data:isQoQ
+      ?p.months.map(([y,m])=>getValFn(y,m))
+      :Array.from({length:12},(_,mi)=>{const pair=p.months.find(([,mm])=>mm===mi);return pair?getValFn(pair[0],pair[1]):null;}),
+    borderColor:Object.values(COLORS)[i],
+    backgroundColor:Object.values(COLORS)[i]+'33',
+    fill:false,tension:0.4,borderWidth:2,pointRadius:3,
+    borderDash:i===0?[5,3]:[]
+  }));
+  makeChart(canvasId,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:11}}}},scales:{x:{grid:{color:gridColor()}},y:{grid:{color:gridColor()}}},spanGaps:true}});
+}
+
+// ══════════════════════════════════════════════
+// METRIC EDIT MODAL
+// ══════════════════════════════════════════════
+function openMetricEdit(page,field){
+  if(!document.getElementById('past-banner-'+page)) return;
+  const data=page==='social'?getSocialData(currentYear,currentMonth):getWebData(currentYear,currentMonth);
+  const val=data[field]??'';
+  const fieldLabel={'total_followers':'Total followers','impressions':'Impressions','engagements':'Engagements','posts':'Posts this month','pageviews':'Page views','visitors':'Unique visitors','session':'Avg. session','bounce':'Bounce rate','leads':'Quote requests','ctr':'Overall CTR'}[field]||field;
+  document.getElementById('modal-title').textContent='Edit: '+fieldLabel;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row">
+      <div class="modal-label">Value for ${MONTHS[currentMonth]} ${currentYear}</div>
+      <input class="modal-input" id="m-metric-val" value="${val}" autofocus>
+      <div class="entry-note">Enter the actual value for this metric. Numbers will be formatted automatically.</div>
+    </div>`;
+  modalCallback=()=>{
+    const newVal=document.getElementById('m-metric-val').value.trim();
+    if(!newVal){alert('Please enter a value.');return false;}
+    if(page==='social'){
+      const d=getSocialData(currentYear,currentMonth);
+      d[field]=isNaN(newVal)?newVal:parseFloat(newVal);
+      saveSocialData(currentYear,currentMonth,d);
+      renderSocial();
+    } else {
+      const d=getWebData(currentYear,currentMonth);
+      d[field]=isNaN(newVal)?newVal:parseFloat(newVal);
+      saveWebData(currentYear,currentMonth,d);
+      renderWeb();
+    }
+    return true;
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal'))return;
+  document.getElementById('modal').style.display='none';
+  modalCallback=null;
+}
+function confirmModal(){
+  if(modalCallback){
+    const ok=modalCallback();
+    if(ok!==false)document.getElementById('modal').style.display='none';
+  } else {
+    document.getElementById('modal').style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+const SKEYS=['company','budget','meta-token','meta-page-id','ig-id','yt-key','yt-channel','tt-token','li-token','li-org','gbp-token','gbp-location','ga4-property','ga4-secret'];
+
+function saveSettings(){
+  SKEYS.forEach(k=>{
+    const el=document.getElementById('s-'+k);
+    if(el&&el.value)localStorage.setItem('dash_'+k,el.value);
+    else if(el)localStorage.removeItem('dash_'+k);
+  });
+  const company=localStorage.getItem('dash_company');
+  if(company)document.getElementById('company-name').textContent=company;
+  updateBadges();
+  alert('Settings saved!');
+}
+
+function loadSettings(){
+  SKEYS.forEach(k=>{
+    const el=document.getElementById('s-'+k);
+    const val=localStorage.getItem('dash_'+k);
+    if(el&&val)el.value=val;
+  });
+  const company=localStorage.getItem('dash_company');
+  if(company)document.getElementById('company-name').textContent=company;
+  updateBadges();
+}
+
+function get(k){return localStorage.getItem('dash_'+k)||'';}
+
+function updateBadges(){
+  const platforms={meta:get('meta-token')&&get('meta-page-id'),youtube:get('yt-key')&&get('yt-channel'),tiktok:get('tt-token'),linkedin:get('li-token')&&get('li-org'),gbp:get('gbp-token'),ga4:get('ga4-property')&&get('ga4-secret')};
+  Object.entries(platforms).forEach(([p,connected])=>{
+    const badge=document.getElementById('badge-'+p);
+    if(!badge)return;
+    badge.className='conn-badge '+(connected?'conn-live':'conn-demo');
+    badge.textContent=connected?'● Live':'● Demo';
+  });
+}
+
+// ══════════════════════════════════════════════
+// LIVE DATA FETCHING
+// ══════════════════════════════════════════════
+async function fetchYouTubeData(){
+  const key=get('yt-key'),channelId=get('yt-channel');
+  if(!key||!channelId)return null;
+  try{
+    const r=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${key}`);
+    const d=await r.json();
+    if(!d.items||!d.items[0])return null;
+    return d.items[0].statistics;
+  }catch{return null;}
+}
+
+async function fetchMetaData(){
+  const token=get('meta-token'),pageId=get('meta-page-id');
+  if(!token||!pageId)return null;
+  try{
+    const r=await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=fan_count,followers_count,name&access_token=${token}`);
+    const d=await r.json();
+    if(d.error)return null;
+    return d;
+  }catch{return null;}
+}
+
+async function refreshAll(btn){
+  if(btn){btn.classList.add('spinning');setTimeout(()=>btn.classList.remove('spinning'),600);}
+  const[metaData,ytData]=await Promise.all([fetchMetaData(),fetchYouTubeData()]);
+  if(metaData&&isCurrentMonth()){
+    const d=getSocialData(currentYear,currentMonth);
+    d.platforms.fb.followers=metaData.fan_count||d.platforms.fb.followers;
+    saveSocialData(currentYear,currentMonth,d);
+    document.getElementById('social-source-badge').textContent='Partial live';
+  }
+  if(ytData&&isCurrentMonth()){
+    const d=getSocialData(currentYear,currentMonth);
+    d.platforms.yt.followers=parseInt(ytData.subscriberCount)||d.platforms.yt.followers;
+    saveSocialData(currentYear,currentMonth,d);
+  }
+  renderCurrentPage();
+  updateTimestamp();
+}
+
+function updateTimestamp(){
+  document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+updateMonthDisplay();
+loadSettings();
+renderSocial();
+updateTimestamp();
+setInterval(()=>refreshAll(null),300000);
+</script>
+</body>
+</html>
