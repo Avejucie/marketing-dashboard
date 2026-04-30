@@ -52,6 +52,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .nav-item:hover{background:var(--bg3);color:var(--text2)}
 .nav-item.active{background:rgba(79,142,247,0.15);color:var(--accent)}
 .nav-item .tip{position:absolute;left:46px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:4px 9px;border-radius:6px;font-size:12px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:200}
+.sidebar{z-index:101}
 .nav-item:hover .tip{opacity:1}
 .nav-div{width:20px;height:1px;background:var(--border);margin:4px 0}
 .main{flex:1;padding:22px;overflow-y:auto;max-width:1200px}
@@ -123,15 +124,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .budget-progress-bar{height:10px;background:var(--bg4);border-radius:5px}
 .budget-progress-fill{height:100%;border-radius:5px;transition:width 0.4s}
 .ch-list{display:flex;flex-direction:column;gap:0}
-.ch-row{display:grid;grid-template-columns:1fr 2fr 130px 80px;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.ch-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,2fr) minmax(160px,auto) minmax(120px,auto);align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border)}
 .ch-row:last-child{border-bottom:none}
 .ch-name{font-size:13px;font-weight:500}
-.ch-bar-wrap{display:flex;align-items:center;gap:8px}
-.ch-bar-bg{flex:1;height:6px;background:var(--bg4);border-radius:3px}
+.ch-bar-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.ch-bar-bg{flex:1;height:6px;background:var(--bg4);border-radius:3px;min-width:0}
 .ch-bar-fill{height:100%;border-radius:3px}
-.ch-amount{font-size:12px;color:var(--text2);font-family:var(--mono);text-align:right}
-.ch-actions{display:flex;gap:6px;justify-content:flex-end}
-.ch-btn{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.15s}
+.ch-amount{font-size:12px;color:var(--text2);font-family:var(--mono);text-align:right;white-space:nowrap}
+.ch-actions{display:flex;gap:6px;justify-content:flex-end;flex-shrink:0}
+.ch-btn{font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .ch-btn:hover{background:var(--bg4);color:var(--text)}
 .ch-btn.danger:hover{background:rgba(247,95,95,0.15);color:var(--red);border-color:rgba(247,95,95,0.3)}
 
@@ -162,6 +163,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .modal-btn:hover{background:var(--bg4)}
 .modal-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .modal-btn.primary:hover{opacity:0.85}
+
+/* ROI */
+.roi-section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin:20px 0 12px;padding-top:16px;border-top:1px solid var(--border)}
+.roi-channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:14px}
+.roi-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.roi-card-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.roi-card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.roi-card-name{font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.roi-card-jobs{font-size:11px;color:var(--text3);background:var(--bg4);padding:2px 7px;border-radius:20px}
+.roi-stat-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
+.roi-stat-row:last-child{border-bottom:none}
+.roi-stat-label{color:var(--text2)}
+.roi-stat-val{font-weight:500;font-family:var(--mono)}
+.roi-multiplier{font-size:18px;font-weight:600;letter-spacing:-0.02em;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.roi-good{color:var(--green)}.roi-ok{color:var(--amber)}.roi-bad{color:var(--red)}.roi-none{color:var(--text3)}
+.roi-log{margin-top:6px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.roi-log-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)}
+.roi-log-tab{font-size:12px;font-weight:500;padding:6px 12px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;transition:color 0.15s}
+.roi-log-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.job-entry{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.job-entry:last-of-type{border-bottom:none}
+.job-entry-del{color:var(--text3);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0}
+.job-entry-del:hover{color:var(--red)}
+.source-badge{font-size:10px;padding:2px 6px;border-radius:20px;background:var(--bg4);color:var(--text3);flex-shrink:0}
+.source-self{background:rgba(62,207,142,0.1);color:var(--green)}
+.source-manual{background:rgba(79,142,247,0.1);color:var(--accent)}
 
 /* COMPARISON VIEW */
 .comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -208,6 +235,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .platform-guide{margin-bottom:22px}
 .platform-guide-title{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border)}
 
+/* LOCK SCREEN */
+.pin-btn{padding:16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:var(--font);font-size:20px;font-weight:500;cursor:pointer;transition:background 0.1s,transform 0.1s;letter-spacing:-0.01em}
+.pin-btn:hover{background:var(--bg3)}
+.pin-btn:active{background:var(--bg4);transform:scale(0.95)}
+.pin-del{font-size:16px;color:var(--text2)}
+.lock-dot{width:12px;height:12px;border-radius:50%;background:var(--bg4);border:1.5px solid var(--border2);transition:background 0.15s,border-color 0.15s}
+.lock-dot.filled{background:var(--accent);border-color:var(--accent)}
+.lock-dot.error{background:var(--red);border-color:var(--red)}
+
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
@@ -216,6 +252,44 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </style>
 </head>
 <body>
+
+<!-- LOCK SCREEN -->
+<div id="lockscreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column">
+  <div style="width:100%;max-width:340px;padding:0 24px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">🚛</div>
+      <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px" id="lock-company">Moving Co.</div>
+      <div style="font-size:13px;color:var(--text2)">Marketing dashboard — team access only</div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <div id="lock-dots" style="display:flex;justify-content:center;gap:12px;margin-bottom:24px">
+        <div class="lock-dot" id="dot-0"></div>
+        <div class="lock-dot" id="dot-1"></div>
+        <div class="lock-dot" id="dot-2"></div>
+        <div class="lock-dot" id="dot-3"></div>
+      </div>
+      <div id="lock-error" style="text-align:center;font-size:12px;color:var(--red);height:18px;margin-bottom:12px"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <div></div>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn pin-del" onclick="pinDel()">⌫</button>
+    </div>
+
+    <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text3)">Enter your team passcode</div>
+  </div>
+</div>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -252,6 +326,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="nav-item active" id="nav-social" onclick="switchPage('social')">📣<div class="tip">Social analytics</div></div>
     <div class="nav-item" id="nav-web" onclick="switchPage('web')">🌐<div class="tip">Website analytics</div></div>
     <div class="nav-item" id="nav-budget" onclick="switchPage('budget')">💰<div class="tip">Marketing budget</div></div>
+    <div class="nav-item" id="nav-merch" onclick="switchPage('merch')">👕<div class="tip">Merch</div></div>
     <div class="nav-div"></div>
     <div class="nav-item" id="nav-guide" onclick="switchPage('guide')">📖<div class="tip">Setup guide</div></div>
     <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">⚙️<div class="tip">Settings</div></div>
@@ -509,6 +584,58 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="chart-wrap h180"><canvas id="allocDonut" role="img" aria-label="Budget allocation donut">Budget by channel.</canvas></div>
           </div>
         </div>
+
+        <!-- ROI SECTION -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">ROI &amp; job tracking</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="card-badge" id="roi-overall-badge">–</div>
+              <button class="ch-btn" onclick="openLogJob()" style="font-size:12px;padding:4px 10px">+ Log job</button>
+            </div>
+          </div>
+          <div class="metric-row" style="margin-bottom:16px">
+            <div class="metric-card">
+              <div class="metric-label">Total revenue</div>
+              <div class="metric-value" id="roi-total-rev">$0</div>
+              <div class="metric-delta delta-neutral" id="roi-rev-delta">→ This month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Jobs booked</div>
+              <div class="metric-value" id="roi-total-jobs">0</div>
+              <div class="metric-delta delta-neutral">→ Across all channels</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Overall ROI</div>
+              <div class="metric-value" id="roi-overall">–</div>
+              <div class="metric-delta delta-neutral">Revenue ÷ spend</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg. job value</div>
+              <div class="metric-value" id="roi-avg-job">–</div>
+              <div class="metric-delta delta-neutral">→ Revenue per job</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Best channel</div>
+              <div class="metric-value" style="font-size:14px;line-height:1.3" id="roi-best-ch">–</div>
+              <div class="metric-delta delta-neutral">→ By ROI</div>
+            </div>
+          </div>
+
+          <div class="two-col" style="margin-bottom:16px">
+            <div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:500">Revenue vs spend by channel</div>
+              <div class="chart-wrap h180"><canvas id="roiBarChart" role="img" aria-label="Revenue vs spend per channel">Revenue vs spend.</canvas></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:500">ROI multiplier by channel</div>
+              <div class="chart-wrap h180"><canvas id="roiMultChart" role="img" aria-label="ROI multiplier per channel">ROI multiplier.</canvas></div>
+            </div>
+          </div>
+
+          <div class="roi-section-title">Per-channel breakdown</div>
+          <div class="roi-channel-grid" id="roi-channel-grid"></div>
+        </div>
       </div>
 
       <div id="budget-compare-view" style="display:none">
@@ -516,6 +643,79 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="card">
           <div class="card-header"><div class="card-title" id="budget-compare-chart-title">Comparison</div></div>
           <div class="chart-wrap h220"><canvas id="budgetCompareChart" role="img" aria-label="Budget comparison chart">Budget comparison.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ MERCH PAGE ══════════════ -->
+    <div class="page" id="page-merch">
+      <div class="page-header">
+        <div class="page-title">Merch</div>
+        <div class="page-sub">Sales, inventory &amp; revenue tracking — launching May 2025</div>
+      </div>
+
+      <div style="background:rgba(79,142,247,0.06);border:1px dashed rgba(79,142,247,0.25);border-radius:var(--radius);padding:32px 28px;margin-bottom:20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:12px">👕</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:6px;letter-spacing:-0.01em">Merch store launching May 2025</div>
+        <div style="font-size:13px;color:var(--text2);max-width:420px;margin:0 auto;line-height:1.7">Analytics and tracking will appear here once the store goes live. The metrics below show what you'll be able to track.</div>
+      </div>
+
+      <div class="metric-row" style="opacity:0.4;pointer-events:none;user-select:none">
+        <div class="metric-card">
+          <div class="metric-label">Total revenue</div>
+          <div class="metric-value">$–</div>
+          <div class="metric-delta delta-neutral">→ Coming May 2025</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Units sold</div>
+          <div class="metric-value">–</div>
+          <div class="metric-delta delta-neutral">→ Coming May 2025</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Orders</div>
+          <div class="metric-value">–</div>
+          <div class="metric-delta delta-neutral">→ Coming May 2025</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg. order value</div>
+          <div class="metric-value">$–</div>
+          <div class="metric-delta delta-neutral">→ Coming May 2025</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Return rate</div>
+          <div class="metric-value">–%</div>
+          <div class="metric-delta delta-neutral">→ Coming May 2025</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card" style="opacity:0.4;pointer-events:none">
+          <div class="card-header"><div class="card-title">Revenue over time</div><div class="card-badge">Coming soon</div></div>
+          <div style="height:140px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--radius-sm)">Chart will appear here</div>
+        </div>
+        <div class="card" style="opacity:0.4;pointer-events:none">
+          <div class="card-header"><div class="card-title">Top selling items</div><div class="card-badge">Coming soon</div></div>
+          <div style="height:140px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--radius-sm)">Chart will appear here</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Planned product lineup</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px" id="merch-lineup">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:24px;margin-bottom:8px">👕</div>
+            <div style="font-size:13px;font-weight:500">T-Shirt</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">Planned</div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center">
+            <div style="font-size:24px;margin-bottom:8px">🧢</div>
+            <div style="font-size:13px;font-weight:500">Hat / Cap</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">Planned</div>
+          </div>
+          <div style="background:var(--bg3);border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:14px;text-align:center;cursor:pointer;transition:background 0.15s" onclick="addMerchItem()" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg3)'">
+            <div style="font-size:24px;margin-bottom:8px;color:var(--text3)">+</div>
+            <div style="font-size:13px;color:var(--text3)">Add item</div>
+          </div>
         </div>
       </div>
     </div>
@@ -571,6 +771,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="page-sub">API keys stored only in your browser — never sent to any server</div>
       </div>
       <div class="notice"><strong>Privacy note:</strong> All credentials are stored in <code>localStorage</code>. Only share this dashboard on trusted devices.</div>
+      <div class="settings-section">
+        <div class="settings-section-title">Passcode lock</div>
+        <div id="passcode-status" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
+        <div class="setting-row"><div class="setting-label">New passcode (4 digits)</div><input class="setting-input" id="s-pin-new" type="password" inputmode="numeric" maxlength="4" placeholder="e.g. 1234" style="max-width:140px;letter-spacing:0.2em;font-size:18px"></div>
+        <div class="setting-row"><div class="setting-label">Confirm passcode</div><input class="setting-input" id="s-pin-confirm" type="password" inputmode="numeric" maxlength="4" placeholder="Repeat code" style="max-width:140px;letter-spacing:0.2em;font-size:18px"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="ch-btn" onclick="savePasscode()" style="padding:7px 14px;font-size:12px">Save passcode</button>
+          <button class="ch-btn danger" onclick="removePasscode()" style="padding:7px 14px;font-size:12px">Remove passcode</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6">The passcode is stored as a hash in your browser. Share the code with your team verbally — don't put it in a message with the dashboard link.</div>
+      </div>
       <div class="settings-section">
         <div class="settings-section-title">General</div>
         <div class="setting-row"><div class="setting-label">Company name</div><input class="setting-input" id="s-company" placeholder="Your Moving Company" /></div>
@@ -630,6 +841,99 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 // STATE
 // ══════════════════════════════════════════════
 const today = new Date();
+
+// ── PASSCODE ──
+let pinEntry = '';
+
+async function hashPin(pin){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin+'dash_salt_v1'));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function initLockScreen(){
+  const stored = localStorage.getItem('dash_pin_hash');
+  if(!stored){ unlockDashboard(); return; }
+  // Show lockscreen, hide dashboard
+  document.getElementById('lockscreen').style.display='flex';
+  document.querySelector('.topbar').style.display='none';
+  document.querySelector('.layout').style.display='none';
+  const company = localStorage.getItem('dash_company');
+  if(company) document.getElementById('lock-company').textContent=company;
+  updatePasscodeStatus();
+}
+
+function unlockDashboard(){
+  document.getElementById('lockscreen').style.display='none';
+  document.querySelector('.topbar').style.display='flex';
+  document.querySelector('.layout').style.display='flex';
+  // Session unlock — stays unlocked until tab closes
+  sessionStorage.setItem('dash_unlocked','1');
+}
+
+function pinPress(digit){
+  if(pinEntry.length>=4) return;
+  pinEntry+=digit;
+  updateDots();
+  if(pinEntry.length===4) setTimeout(checkPin,120);
+}
+
+function pinDel(){
+  pinEntry=pinEntry.slice(0,-1);
+  updateDots();
+  clearError();
+}
+
+function updateDots(state=''){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById('dot-'+i);
+    dot.className='lock-dot'+(i<pinEntry.length?' filled':'')+(state?' '+state:'');
+  }
+}
+
+function clearError(){
+  document.getElementById('lock-error').textContent='';
+}
+
+async function checkPin(){
+  const stored=localStorage.getItem('dash_pin_hash');
+  const hash=await hashPin(pinEntry);
+  if(hash===stored){
+    updateDots('');
+    unlockDashboard();
+  } else {
+    updateDots('error');
+    document.getElementById('lock-error').textContent='Incorrect passcode — try again';
+    setTimeout(()=>{pinEntry='';updateDots();clearError();},1200);
+  }
+}
+
+async function savePasscode(){
+  const p1=document.getElementById('s-pin-new').value.trim();
+  const p2=document.getElementById('s-pin-confirm').value.trim();
+  if(!/^\d{4}$/.test(p1)){alert('Passcode must be exactly 4 digits.');return;}
+  if(p1!==p2){alert('Passcodes don\'t match.');return;}
+  const hash=await hashPin(p1);
+  localStorage.setItem('dash_pin_hash',hash);
+  document.getElementById('s-pin-new').value='';
+  document.getElementById('s-pin-confirm').value='';
+  updatePasscodeStatus();
+  alert('Passcode saved! Share it with your team verbally.');
+}
+
+function removePasscode(){
+  if(!confirm('Remove the passcode? Anyone with the link will be able to access the dashboard.'))return;
+  localStorage.removeItem('dash_pin_hash');
+  updatePasscodeStatus();
+}
+
+function updatePasscodeStatus(){
+  const el=document.getElementById('passcode-status');
+  if(!el)return;
+  const has=!!localStorage.getItem('dash_pin_hash');
+  el.innerHTML=has
+    ?'<span style="color:var(--green)">● Passcode is set</span> — the dashboard will prompt for a code on each new visit.'
+    :'<span style="color:var(--amber)">● No passcode set</span> — anyone with the link can view the dashboard.';
+}
 let currentYear = today.getFullYear();
 let currentMonth = today.getMonth(); // 0-indexed
 let currentView = 'month'; // 'month','quarter','year'
@@ -707,13 +1011,13 @@ function saveWebData(y,m,data){lsSet('web_'+mKey(y,m),data)}
 // Budget: per-month channel config
 function getDefaultChannels(){
   return [
-    {id:'ch1',name:'Google Ads',budget:500,color:'#4f8ef7',entries:[{amount:390,note:'Search ads',date:'2025-04-15'}]},
-    {id:'ch2',name:'Facebook & Instagram',budget:300,color:'#f75fa8',entries:[{amount:255,note:'Boosted posts',date:'2025-04-12'}]},
-    {id:'ch3',name:'YouTube Ads',budget:200,color:'#f75f5f',entries:[{amount:120,note:'Pre-roll ads',date:'2025-04-10'}]},
-    {id:'ch4',name:'TikTok Ads',budget:150,color:'#f7a94f',entries:[{amount:75,note:'Branded content',date:'2025-04-08'}]},
-    {id:'ch5',name:'LinkedIn Ads',budget:100,color:'#4fcfcf',entries:[{amount:100,note:'Sponsored posts',date:'2025-04-05'}]},
-    {id:'ch6',name:'Yelp / Local listings',budget:155,color:'#f75f5f',entries:[{amount:155,note:'Annual listing',date:'2025-04-01'}]},
-    {id:'ch7',name:'Direct mail / Flyers',budget:95,color:'#7c6af7',entries:[]},
+    {id:'ch1',name:'Google Ads',budget:500,color:'#4f8ef7',entries:[{amount:390,note:'Search ads',date:'2025-04-15'}],jobs:[{revenue:2400,note:'3-bed local move',date:'2025-04-18',source:'self'},{revenue:1800,note:'2-bed move',date:'2025-04-22',source:'manual'}]},
+    {id:'ch2',name:'Facebook & Instagram',budget:300,color:'#f75fa8',entries:[{amount:255,note:'Boosted posts',date:'2025-04-12'}],jobs:[{revenue:3200,note:'Long-distance move',date:'2025-04-14',source:'self'}]},
+    {id:'ch3',name:'YouTube Ads',budget:200,color:'#f75f5f',entries:[{amount:120,note:'Pre-roll ads',date:'2025-04-10'}],jobs:[]},
+    {id:'ch4',name:'TikTok Ads',budget:150,color:'#f7a94f',entries:[{amount:75,note:'Branded content',date:'2025-04-08'}],jobs:[{revenue:1600,note:'Studio apt move',date:'2025-04-20',source:'self'}]},
+    {id:'ch5',name:'LinkedIn Ads',budget:100,color:'#4fcfcf',entries:[{amount:100,note:'Sponsored posts',date:'2025-04-05'}],jobs:[]},
+    {id:'ch6',name:'Yelp / Local listings',budget:155,color:'#f75f5f',entries:[{amount:155,note:'Annual listing',date:'2025-04-01'}],jobs:[{revenue:2100,note:'4-bed move',date:'2025-04-11',source:'self'},{revenue:950,note:'Office move',date:'2025-04-25',source:'manual'}]},
+    {id:'ch7',name:'Direct mail / Flyers',budget:95,color:'#7c6af7',entries:[],jobs:[]},
   ];
 }
 function getBudgetData(y,m){
@@ -730,7 +1034,8 @@ function getBudgetData(y,m){
   const rng = (base,variance,s)=>Math.round(base*(1+(((seed*s*7+s*31)%100)/100-0.5)*variance));
   const chs = getDefaultChannels().map((c,i)=>({
     ...c,
-    entries:[{amount:rng(Math.round(c.budget*0.75),0.3,i+1),note:'Monthly spend',date:mKey(y,m)+'-15'}]
+    entries:[{amount:rng(Math.round(c.budget*0.75),0.3,i+1),note:'Monthly spend',date:mKey(y,m)+'-15'}],
+    jobs: c.budget>0 ? [{revenue:rng(c.budget*3,0.4,i+2),note:'Demo job',date:mKey(y,m)+'-20',source:'manual'}] : []
   }));
   return {channels:chs};
 }
@@ -739,7 +1044,7 @@ function saveBudgetData(y,m,data){lsSet('budget_'+mKey(y,m),data)}
 // ══════════════════════════════════════════════
 // NAVIGATION & VIEW
 // ══════════════════════════════════════════════
-const PAGES = ['social','web','budget','guide','settings'];
+const PAGES = ['social','web','budget','merch','guide','settings'];
 
 function switchPage(id){
   PAGES.forEach(p=>{
@@ -1030,6 +1335,8 @@ function renderBudget(){
     renderChannelList(data);
     // charts
     renderBudgetCharts(data);
+    // ROI
+    renderROI(data);
   } else {
     document.getElementById('budget-month-view').style.display='none';
     document.getElementById('budget-compare-view').style.display='';
@@ -1068,6 +1375,7 @@ function renderChannelList(data){
           <div class="ch-amount ${overBudget?'delta-down':''}">$${spent.toLocaleString()} / $${ch.budget.toLocaleString()}</div>
           <div class="ch-actions">
             <button class="ch-btn" onclick="toggleSpendLog(${idx})" title="Log spend">+ Spend</button>
+            <button class="ch-btn" onclick="toggleRoiLog(${idx})" title="Log job" style="color:var(--green);border-color:rgba(62,207,142,0.3)">+ Job</button>
             <button class="ch-btn" onclick="openEditChannel(${idx})" title="Edit">✎</button>
             <button class="ch-btn danger" onclick="deleteChannel(${idx})" title="Delete">✕</button>
           </div>
@@ -1080,6 +1388,27 @@ function renderChannelList(data){
             <input class="spend-input" id="se-note-${idx}" type="text" placeholder="Note (optional)" style="flex:2">
             <input class="spend-input" id="se-date-${idx}" type="date" value="${today.toISOString().slice(0,10)}" style="max-width:140px">
             <button class="spend-add-btn" onclick="addSpendEntry(${idx})">Add</button>
+          </div>
+        </div>
+        <div class="roi-log" id="roi-log-${idx}" style="display:none;margin:0 0 2px">
+          <div class="spend-log-title">Booked jobs — ${ch.name}</div>
+          ${(ch.jobs||[]).map((j,ji)=>`
+            <div class="job-entry">
+              <span style="color:var(--text2);min-width:80px">${j.date}</span>
+              <span class="source-badge ${j.source==='self'?'source-self':'source-manual'}">${j.source==='self'?'Self-reported':'Manual'}</span>
+              <span style="flex:1;padding:0 8px;color:var(--text2)">${j.note||'–'}</span>
+              <span style="font-family:var(--mono);color:var(--green);font-weight:500">$${j.revenue.toLocaleString()}</span>
+              <span class="job-entry-del" onclick="deleteJobEntry(${idx},${ji})" title="Remove">×</span>
+            </div>`).join('')}
+          <div class="spend-add-row">
+            <input class="spend-input" id="je-rev-${idx}" type="number" placeholder="Revenue ($)" style="max-width:130px">
+            <input class="spend-input" id="je-note-${idx}" type="text" placeholder="Notes (e.g. 3-bed local move)" style="flex:2">
+            <input class="spend-input" id="je-date-${idx}" type="date" value="${today.toISOString().slice(0,10)}" style="max-width:140px">
+            <select class="spend-input" id="je-source-${idx}" style="max-width:150px">
+              <option value="self">Self-reported</option>
+              <option value="manual">Manual assign</option>
+            </select>
+            <button class="spend-add-btn" onclick="addJobEntry(${idx})" style="background:var(--green)">Add job</button>
           </div>
         </div>
       </div>`;
@@ -1185,6 +1514,155 @@ function deleteChannel(idx){
   renderBudget();
 }
 
+function toggleRoiLog(idx){
+  const el=document.getElementById('roi-log-'+idx);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function addJobEntry(idx){
+  const data=getBudgetData(currentYear,currentMonth);
+  const revenue=parseFloat(document.getElementById('je-rev-'+idx).value);
+  const note=document.getElementById('je-note-'+idx).value.trim();
+  const date=document.getElementById('je-date-'+idx).value;
+  const source=document.getElementById('je-source-'+idx).value;
+  if(!revenue||revenue<=0){alert('Please enter a valid revenue amount.');return;}
+  if(!data.channels[idx].jobs) data.channels[idx].jobs=[];
+  data.channels[idx].jobs.push({revenue,note:note||'Job',date:date||today.toISOString().slice(0,10),source});
+  saveBudgetData(currentYear,currentMonth,data);
+  renderBudget();
+  setTimeout(()=>toggleRoiLog(idx),50);
+}
+
+function deleteJobEntry(chIdx,jIdx){
+  if(!confirm('Remove this job entry?'))return;
+  const data=getBudgetData(currentYear,currentMonth);
+  if(data.channels[chIdx].jobs) data.channels[chIdx].jobs.splice(jIdx,1);
+  saveBudgetData(currentYear,currentMonth,data);
+  renderBudget();
+  setTimeout(()=>toggleRoiLog(chIdx),50);
+}
+
+// Global job log modal (quick log without picking channel first)
+function openLogJob(){
+  const data=getBudgetData(currentYear,currentMonth);
+  const channels=data.channels||[];
+  if(channels.length===0){alert('Add at least one channel first.');return;}
+  document.getElementById('modal-title').textContent='Log a booked job';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row"><div class="modal-label">Marketing channel</div>
+      <select class="modal-input" id="m-job-ch">
+        ${channels.map((c,i)=>`<option value="${i}">${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-row"><div class="modal-label">Revenue ($)</div><input class="modal-input" id="m-job-rev" type="number" placeholder="e.g. 1800" autofocus></div>
+    <div class="modal-row"><div class="modal-label">Job date</div><input class="modal-input" id="m-job-date" type="date" value="${today.toISOString().slice(0,10)}"></div>
+    <div class="modal-row"><div class="modal-label">Notes</div><input class="modal-input" id="m-job-note" placeholder="e.g. 3-bed local move, long-distance..."></div>
+    <div class="modal-row"><div class="modal-label">Attribution method</div>
+      <select class="modal-input" id="m-job-source">
+        <option value="self">Self-reported (customer said how they found you)</option>
+        <option value="manual">Manual assignment</option>
+      </select>
+    </div>`;
+  modalCallback=()=>{
+    const idx=parseInt(document.getElementById('m-job-ch').value);
+    const revenue=parseFloat(document.getElementById('m-job-rev').value);
+    const date=document.getElementById('m-job-date').value;
+    const note=document.getElementById('m-job-note').value.trim();
+    const source=document.getElementById('m-job-source').value;
+    if(!revenue||revenue<=0){alert('Please enter a valid revenue amount.');return false;}
+    if(!data.channels[idx].jobs) data.channels[idx].jobs=[];
+    data.channels[idx].jobs.push({revenue,note:note||'Job',date:date||today.toISOString().slice(0,10),source});
+    saveBudgetData(currentYear,currentMonth,data);
+    renderBudget();
+    return true;
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
+function renderROI(data){
+  const channels=data.channels||[];
+  // Compute per-channel stats
+  const chStats=channels.map(ch=>{
+    const spent=ch.entries.reduce((a,e)=>a+e.amount,0);
+    const jobs=(ch.jobs||[]);
+    const revenue=jobs.reduce((a,j)=>a+j.revenue,0);
+    const roi=spent>0?revenue/spent:0;
+    const cpj=jobs.length>0?spent/jobs.length:0;
+    return {name:ch.name,color:ch.color,spent,revenue,jobs:jobs.length,roi,cpj};
+  });
+
+  const totalRevenue=chStats.reduce((a,c)=>a+c.revenue,0);
+  const totalSpent=chStats.reduce((a,c)=>a+c.spent,0);
+  const totalJobs=chStats.reduce((a,c)=>a+c.jobs,0);
+  const overallRoi=totalSpent>0?(totalRevenue/totalSpent):0;
+  const avgJobVal=totalJobs>0?(totalRevenue/totalJobs):0;
+  const bestCh=chStats.filter(c=>c.jobs>0).sort((a,b)=>b.roi-a.roi)[0];
+
+  document.getElementById('roi-total-rev').textContent='$'+totalRevenue.toLocaleString();
+  document.getElementById('roi-total-jobs').textContent=totalJobs;
+  document.getElementById('roi-overall').textContent=overallRoi>0?overallRoi.toFixed(1)+'×':'–';
+  document.getElementById('roi-overall').className='metric-value '+(overallRoi>=3?'roi-good':overallRoi>=1?'roi-ok':overallRoi>0?'roi-bad':'roi-none');
+  document.getElementById('roi-avg-job').textContent=avgJobVal>0?'$'+Math.round(avgJobVal).toLocaleString():'–';
+  document.getElementById('roi-best-ch').textContent=bestCh?bestCh.name:'–';
+  document.getElementById('roi-overall-badge').textContent=overallRoi>0?'ROI '+overallRoi.toFixed(1)+'×':'No jobs logged';
+
+  // Per-channel cards
+  const grid=document.getElementById('roi-channel-grid');
+  grid.innerHTML=chStats.map(c=>{
+    const roiCls=c.roi>=3?'roi-good':c.roi>=1?'roi-ok':c.roi>0?'roi-bad':'roi-none';
+    const roiTxt=c.roi>0?c.roi.toFixed(1)+'×':'–';
+    return `<div class="roi-card">
+      <div class="roi-card-header">
+        <div class="roi-card-dot" style="background:${c.color}"></div>
+        <div class="roi-card-name" title="${c.name}">${c.name}</div>
+        <div class="roi-card-jobs">${c.jobs} job${c.jobs!==1?'s':''}</div>
+      </div>
+      <div class="roi-stat-row"><span class="roi-stat-label">Spend</span><span class="roi-stat-val">$${c.spent.toLocaleString()}</span></div>
+      <div class="roi-stat-row"><span class="roi-stat-label">Revenue</span><span class="roi-stat-val" style="color:var(--green)">$${c.revenue.toLocaleString()}</span></div>
+      <div class="roi-stat-row"><span class="roi-stat-label">Cost / job</span><span class="roi-stat-val">${c.cpj>0?'$'+Math.round(c.cpj).toLocaleString():'–'}</span></div>
+      <div class="roi-multiplier ${roiCls}">${roiTxt} <span style="font-size:12px;font-weight:400;color:var(--text3)">ROI</span></div>
+    </div>`;
+  }).join('');
+
+  // Revenue vs spend bar chart
+  const activeChannels=chStats.filter(c=>c.spent>0||c.revenue>0);
+  if(activeChannels.length>0){
+    makeChart('roiBarChart',{
+      type:'bar',
+      data:{
+        labels:activeChannels.map(c=>c.name.length>12?c.name.slice(0,12)+'…':c.name),
+        datasets:[
+          {label:'Revenue',data:activeChannels.map(c=>c.revenue),backgroundColor:'rgba(62,207,142,0.7)',borderRadius:4,borderSkipped:false},
+          {label:'Spend',data:activeChannels.map(c=>c.spent),backgroundColor:'rgba(79,142,247,0.5)',borderRadius:4,borderSkipped:false}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:11}}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{grid:{color:gridColor()},ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)}}}}
+    });
+
+    // ROI multiplier horizontal bar
+    makeChart('roiMultChart',{
+      type:'bar',
+      data:{
+        labels:activeChannels.map(c=>c.name.length>12?c.name.slice(0,12)+'…':c.name),
+        datasets:[{
+          label:'ROI',
+          data:activeChannels.map(c=>parseFloat(c.roi.toFixed(2))),
+          backgroundColor:activeChannels.map(c=>c.roi>=3?'rgba(62,207,142,0.7)':c.roi>=1?'rgba(247,169,79,0.7)':'rgba(247,95,95,0.6)'),
+          borderRadius:4,borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{color:gridColor()},ticks:{callback:v=>v+'×'}},
+          y:{ticks:{font:{size:10}},grid:{display:false}}
+        }
+      }
+    });
+  }
+}
+
 function renderBudgetCharts(data){
   const channels=data.channels||[];
   // 6-month trend
@@ -1215,19 +1693,24 @@ function renderBudgetComparison(){
   const grid=document.getElementById('budget-compare-grid');
   grid.innerHTML=periods.map(p=>{
     const months=p.months;
-    let totalBudget=0,totalSpent=0;
+    let totalBudget=0,totalSpent=0,totalRevenue=0,totalJobs=0;
     months.forEach(([y,m])=>{
       const d=getBudgetData(y,m);
       totalBudget+=d.channels.reduce((a,c)=>a+c.budget,0);
       totalSpent+=d.channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);
+      totalRevenue+=d.channels.reduce((a,c)=>a+(c.jobs||[]).reduce((b,j)=>b+j.revenue,0),0);
+      totalJobs+=d.channels.reduce((a,c)=>a+(c.jobs||[]).length,0);
     });
     const pct=totalBudget>0?Math.round(totalSpent/totalBudget*100):0;
+    const roi=totalSpent>0?(totalRevenue/totalSpent):0;
     return `<div class="compare-card">
       <div class="compare-period">${p.label}</div>
       <div class="compare-metric"><span class="compare-label">Total budget</span><span class="compare-val">$${totalBudget.toLocaleString()}</span></div>
       <div class="compare-metric"><span class="compare-label">Total spent</span><span class="compare-val">$${totalSpent.toLocaleString()}</span></div>
       <div class="compare-metric"><span class="compare-label">Utilization</span><span class="compare-val">${pct}%</span></div>
-      <div class="compare-metric"><span class="compare-label">Remaining</span><span class="compare-val">$${Math.max(0,totalBudget-totalSpent).toLocaleString()}</span></div>
+      <div class="compare-metric"><span class="compare-label">Revenue</span><span class="compare-val" style="color:var(--green)">$${totalRevenue.toLocaleString()}</span></div>
+      <div class="compare-metric"><span class="compare-label">Jobs booked</span><span class="compare-val">${totalJobs}</span></div>
+      <div class="compare-metric"><span class="compare-label">ROI</span><span class="compare-val ${roi>=3?'roi-good':roi>=1?'roi-ok':roi>0?'roi-bad':'roi-none'}">${roi>0?roi.toFixed(1)+'×':'–'}</span></div>
     </div>`;
   }).join('');
   // Chart: monthly spend across periods
@@ -1454,11 +1937,51 @@ function updateTimestamp(){
   document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 
+function addMerchItem(){
+  document.getElementById('modal-title').textContent='Add merch item';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-row"><div class="modal-label">Item name</div><input class="modal-input" id="m-merch-name" placeholder="e.g. Hoodie, Sticker, Water bottle" autofocus></div>
+    <div class="modal-row"><div class="modal-label">Emoji icon</div><input class="modal-input" id="m-merch-emoji" placeholder="e.g. 🧥" maxlength="2" style="font-size:20px;max-width:80px"></div>
+    <div class="modal-row"><div class="modal-label">Status</div>
+      <select class="modal-input" id="m-merch-status">
+        <option value="Planned">Planned</option>
+        <option value="In design">In design</option>
+        <option value="Ready">Ready</option>
+      </select>
+    </div>`;
+  modalCallback=()=>{
+    const name=document.getElementById('m-merch-name').value.trim();
+    const emoji=document.getElementById('m-merch-emoji').value.trim()||'📦';
+    const status=document.getElementById('m-merch-status').value;
+    if(!name){alert('Please enter an item name.');return false;}
+    const lineup=document.getElementById('merch-lineup');
+    const addBtn=lineup.lastElementChild;
+    const newItem=document.createElement('div');
+    newItem.style.cssText='background:var(--bg3);border:1px solid var(--border);border-radius:var(--border-radius-sm,8px);padding:14px;text-align:center';
+    newItem.innerHTML=`<div style="font-size:24px;margin-bottom:8px">${emoji}</div><div style="font-size:13px;font-weight:500">${name}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">${status}</div>`;
+    lineup.insertBefore(newItem,addBtn);
+    return true;
+  };
+  document.getElementById('modal').style.display='flex';
+}
+
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  if(document.getElementById('lockscreen').style.display==='none') return;
+  if(e.key>='0'&&e.key<='9') pinPress(e.key);
+  else if(e.key==='Backspace') pinDel();
+});
+
 updateMonthDisplay();
 loadSettings();
+updatePasscodeStatus();
+if(sessionStorage.getItem('dash_unlocked')){
+  unlockDashboard();
+} else {
+  initLockScreen();
+}
 renderSocial();
 updateTimestamp();
 setInterval(()=>refreshAll(null),300000);
