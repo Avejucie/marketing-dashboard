@@ -592,6 +592,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
             <div class="card-title">ROI &amp; job tracking</div>
             <div style="display:flex;gap:8px;align-items:center">
               <div class="card-badge" id="roi-overall-badge">–</div>
+              <div class="card-badge" id="sm-sync-badge" style="display:none;background:rgba(62,207,142,0.1);color:var(--green);border-color:rgba(62,207,142,0.2)">⟳ SmartMoving</div>
               <button class="ch-btn" onclick="openLogJob()" style="font-size:12px;padding:4px 10px">+ Log job</button>
             </div>
           </div>
@@ -872,6 +873,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="setting-row"><div class="setting-label">GA4 Property ID</div><input class="setting-input" id="s-ga4-property" placeholder="123456789" /></div>
         <div class="setting-row"><div class="setting-label">Measurement Protocol API Secret</div><input class="setting-input" id="s-ga4-secret" type="password" placeholder="xxxxxxxxxxxxxxxxxxxx" /></div>
       </div>
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">SmartMoving CRM<span class="conn-badge conn-demo" id="badge-sm">● Demo</span></div>
+        <div class="setting-row">
+          <div class="setting-label">API Key</div>
+          <input class="setting-input" id="s-sm-api-key" type="password" placeholder="your-smartmoving-api-key" />
+          <div class="setting-hint">Found in SmartMoving → Settings → Integrations → SmartMoving API Integration → Manage. Jobs will auto-populate in ROI tracking on each refresh.</div>
+        </div>
+      </div>
       <button class="save-btn" onclick="saveSettings()">Save all settings</button>
       <div style="height:40px"></div>
     </div>
@@ -1079,12 +1088,21 @@ function saveWebData(y,m,data){
 function getDefaultChannels(){
   return [
     {id:'ch1',name:'Google Ads',budget:500,color:'#4f8ef7',entries:[{amount:390,note:'Search ads',date:'2025-04-15'}],jobs:[{revenue:2400,note:'3-bed local move',date:'2025-04-18',source:'self'},{revenue:1800,note:'2-bed move',date:'2025-04-22',source:'manual'}]},
-    {id:'ch2',name:'Facebook & Instagram',budget:300,color:'#f75fa8',entries:[{amount:255,note:'Boosted posts',date:'2025-04-12'}],jobs:[{revenue:3200,note:'Long-distance move',date:'2025-04-14',source:'self'}]},
+    {id:'ch2',name:'Meta Ads',budget:300,color:'#f75fa8',entries:[{amount:255,note:'Boosted posts',date:'2025-04-12'}],jobs:[{revenue:3200,note:'Long-distance move',date:'2025-04-14',source:'self'}]},
+    {id:'ch2b',name:'Meta Organic',budget:0,color:'#f7a0c4',entries:[],jobs:[]},
     {id:'ch3',name:'YouTube Ads',budget:200,color:'#f75f5f',entries:[{amount:120,note:'Pre-roll ads',date:'2025-04-10'}],jobs:[]},
     {id:'ch4',name:'TikTok Ads',budget:150,color:'#f7a94f',entries:[{amount:75,note:'Branded content',date:'2025-04-08'}],jobs:[{revenue:1600,note:'Studio apt move',date:'2025-04-20',source:'self'}]},
     {id:'ch5',name:'LinkedIn Ads',budget:100,color:'#4fcfcf',entries:[{amount:100,note:'Sponsored posts',date:'2025-04-05'}],jobs:[]},
     {id:'ch6',name:'Yelp / Local listings',budget:155,color:'#f75f5f',entries:[{amount:155,note:'Annual listing',date:'2025-04-01'}],jobs:[{revenue:2100,note:'4-bed move',date:'2025-04-11',source:'self'},{revenue:950,note:'Office move',date:'2025-04-25',source:'manual'}]},
-    {id:'ch7',name:'Direct mail / Flyers',budget:95,color:'#7c6af7',entries:[],jobs:[]},
+    {id:'ch7',name:'Print',budget:95,color:'#7c6af7',entries:[],jobs:[]},
+    {id:'ch8',name:'Google Business (organic)',budget:0,color:'#3ecf8e',entries:[],jobs:[]},
+    {id:'ch9',name:'Word of Mouth',budget:0,color:'#ba7517',entries:[],jobs:[]},
+    {id:'ch10',name:'Repeat Customer',budget:0,color:'#7c6af7',entries:[],jobs:[]},
+    {id:'ch11',name:'Realtor',budget:0,color:'#4fcfcf',entries:[],jobs:[]},
+    {id:'ch12',name:'Home Organizer',budget:0,color:'#f75fa8',entries:[],jobs:[]},
+    {id:'ch13',name:'Furniture Store',budget:0,color:'#f7a94f',entries:[],jobs:[]},
+    {id:'ch14',name:'GoodGuys Box',budget:0,color:'#4f8ef7',entries:[],jobs:[]},
+    {id:'ch15',name:'LLM',budget:0,color:'#3ecf8e',entries:[],jobs:[]},
   ];
 }
 function getBudgetData(y,m){
@@ -1494,10 +1512,10 @@ function renderChannelList(data){
           ${(ch.jobs||[]).map((j,ji)=>`
             <div class="job-entry">
               <span style="color:var(--text2);min-width:80px">${j.date}</span>
-              <span class="source-badge ${j.source==='self'?'source-self':'source-manual'}">${j.source==='self'?'Self-reported':'Manual'}</span>
+              <span class="source-badge ${j.source==='smartmoving'?'source-self':j.source==='self'?'source-self':'source-manual'}">${j.source==='smartmoving'?'SmartMoving':j.source==='self'?'Self-reported':'Manual'}</span>
               <span style="flex:1;padding:0 8px;color:var(--text2)">${j.note||'–'}</span>
               <span style="font-family:var(--mono);color:var(--green);font-weight:500">$${j.revenue.toLocaleString()}</span>
-              <span class="job-entry-del" onclick="deleteJobEntry(${idx},${ji})" title="Remove">×</span>
+              ${j.source==='smartmoving'?'<span style="font-size:11px;color:var(--text3);padding:0 4px" title="Auto-imported from SmartMoving">🔒</span>':'<span class="job-entry-del" onclick="deleteJobEntry('+idx+','+ji+')" title="Remove">×</span>'}
             </div>`).join('')}
           <div class="spend-add-row">
             <input class="spend-input" id="je-rev-${idx}" type="number" placeholder="Revenue ($)" style="max-width:130px">
@@ -1705,7 +1723,9 @@ function renderROI(data){
   document.getElementById('roi-best-ch').textContent=bestCh?bestCh.name:'–';
   document.getElementById('roi-overall-badge').textContent=overallRoi>0?'ROI '+overallRoi.toFixed(1)+'×':'No jobs logged';
 
-  // Per-channel cards
+  // Show SmartMoving badge if connected
+  const smBadgeEl=document.getElementById('sm-sync-badge');
+  if(smBadgeEl) smBadgeEl.style.display=get('sm-api-key')?'flex':'none';
   const grid=document.getElementById('roi-channel-grid');
   grid.innerHTML=chStats.map(c=>{
     const roiCls=c.roi>=3?'roi-good':c.roi>=1?'roi-ok':c.roi>0?'roi-bad':'roi-none';
@@ -2064,8 +2084,8 @@ async function loadBudgetDataSync(y,m){
 // ══════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════
-const SKEYS_LOCAL=['company','budget']; // stays per-device
-const SKEYS_SYNC=['meta-token','meta-page-id','ig-id','yt-key','yt-channel','tt-token','li-token','li-org','gbp-token','gbp-location','ga4-property','ga4-secret']; // synced via Supabase
+const SKEYS_LOCAL=['company','budget'];
+const SKEYS_SYNC=['meta-token','meta-page-id','ig-id','yt-key','yt-channel','tt-token','li-token','li-org','gbp-token','gbp-location','ga4-property','ga4-secret','sm-api-key'];
 const SKEYS=[...SKEYS_LOCAL,...SKEYS_SYNC];
 
 async function saveSettings(){
@@ -2177,7 +2197,7 @@ async function loadSettings(){
 function get(k){return localStorage.getItem('dash_'+k)||'';}
 
 function updateBadges(){
-  const platforms={meta:get('meta-token')&&get('meta-page-id'),youtube:get('yt-key')&&get('yt-channel'),tiktok:get('tt-token'),linkedin:get('li-token')&&get('li-org'),gbp:get('gbp-token'),ga4:get('ga4-property')&&get('ga4-secret')};
+  const platforms={meta:get('meta-token')&&get('meta-page-id'),youtube:get('yt-key')&&get('yt-channel'),tiktok:get('tt-token'),linkedin:get('li-token')&&get('li-org'),gbp:get('gbp-token'),ga4:get('ga4-property')&&get('ga4-secret'),sm:get('sm-api-key')};
   Object.entries(platforms).forEach(([p,connected])=>{
     const badge=document.getElementById('badge-'+p);
     if(!badge) return;
@@ -2250,9 +2270,91 @@ async function fetchMetaData(){
   }catch{return null;}
 }
 
+// ══════════════════════════════════════════════
+// SMARTMOVING INTEGRATION
+// ══════════════════════════════════════════════
+
+// Maps SmartMoving "how did you hear about us" values to dashboard channel names
+const SM_CHANNEL_MAP = {
+  'google ads':           'Google Ads',
+  'google':               'Google Business (organic)',
+  'your website':         'Google Business (organic)',
+  'facebook':             'Meta Organic',
+  'instagram':            'Meta Organic',
+  'meta ads':             'Meta Ads',
+  'tiktok':               'TikTok Ads',
+  'postcard (mailer)':    'Print',
+  'yards signs':          'Print',
+  'saw truck':            'Print',
+  'warehouse sing':       'Print',
+  'friend or family':     'Word of Mouth',
+  'word of mouth':        'Word of Mouth',
+  'repeat customer':      'Repeat Customer',
+  'realtor':              'Realtor',
+  'home organizer':       'Home Organizer',
+  'furniture store/delivery': 'Furniture Store',
+  'goodguys box':         'GoodGuys Box',
+  'llm':                  'LLM',
+};
+
+function smChannelName(leadSource){
+  if(!leadSource) return null;
+  return SM_CHANNEL_MAP[leadSource.toLowerCase().trim()] || leadSource;
+}
+
+async function fetchSmartMovingJobs(){
+  const apiKey = get('sm-api-key');
+  if(!apiKey) return null;
+  try{
+    // Fetch jobs for current month
+    const startDate = new Date(currentYear, currentMonth, 1).toISOString().slice(0,10);
+    const endDate = new Date(currentYear, currentMonth+1, 0).toISOString().slice(0,10);
+    const r = await fetch(
+      `https://api.smartmoving.com/api/jobs?StartDate=${startDate}&EndDate=${endDate}&PageSize=200&Page=1`,
+      {headers:{'Content-Type':'application/json','x-api-key':apiKey}}
+    );
+    if(!r.ok) return null;
+    const d = await r.json();
+    return d.items || d.data || d || null;
+  }catch{return null;}
+}
+
+function applySmartMovingJobs(jobs, budgetData){
+  if(!jobs||!jobs.length) return false;
+  const channels = budgetData.channels;
+  // Track which SM job IDs we've already imported to avoid dupes
+  const importedIds = new Set(
+    channels.flatMap(c=>(c.jobs||[]).filter(j=>j.smId).map(j=>j.smId))
+  );
+  let added = 0;
+  jobs.forEach(job=>{
+    const id = String(job.id||job.jobId||job.Id||'');
+    if(importedIds.has(id)) return; // already imported
+    // Only import completed/booked jobs
+    const status = (job.status||job.Status||'').toLowerCase();
+    if(!['completed','booked','confirmed','done'].includes(status)&&status!='') return;
+    const revenue = parseFloat(job.totalAmount||job.revenue||job.total||job.Revenue||0);
+    const leadSource = job.leadSource||job.LeadSource||job.howDidYouHearAboutUs||job.referralSource||'';
+    const chName = smChannelName(leadSource);
+    const date = (job.moveDate||job.jobDate||job.date||job.MoveDate||new Date().toISOString()).slice(0,10);
+    const note = [job.customerName||job.name||'', job.jobType||job.type||''].filter(Boolean).join(' — ') || 'SmartMoving job';
+    // Find or auto-create channel
+    let ch = channels.find(c=>c.name.toLowerCase()===chName.toLowerCase());
+    if(!ch){
+      ch = {id:'ch_sm_'+Date.now()+'_'+Math.random().toString(36).slice(2), name:chName||'Other', budget:0, color:'#8b90a0', entries:[], jobs:[]};
+      channels.push(ch);
+    }
+    if(!ch.jobs) ch.jobs=[];
+    ch.jobs.push({revenue, note, date, source:'smartmoving', smId:id});
+    importedIds.add(id);
+    added++;
+  });
+  return added > 0;
+}
+
 async function refreshAll(btn){
   if(btn){btn.classList.add('spinning');setTimeout(()=>btn.classList.remove('spinning'),600);}
-  const[metaData,ytData]=await Promise.all([fetchMetaData(),fetchYouTubeData()]);
+  const[metaData,ytData,smJobs]=await Promise.all([fetchMetaData(),fetchYouTubeData(),fetchSmartMovingJobs()]);
   const d=getSocialData(currentYear,currentMonth);
   let hasLive=false;
   if(metaData&&isCurrentMonth()){
@@ -2265,28 +2367,35 @@ async function refreshAll(btn){
     hasLive=true;
   }
   if(hasLive) saveSocialData(currentYear,currentMonth,d);
+
+  // Apply SmartMoving jobs to budget
+  if(smJobs){
+    const budgetData=getBudgetData(currentYear,currentMonth);
+    const added=applySmartMovingJobs(smJobs,budgetData);
+    if(added){
+      saveBudgetData(currentYear,currentMonth,budgetData);
+      // Update SM badge
+      const smBadge=document.getElementById('badge-sm');
+      if(smBadge){smBadge.className='conn-badge conn-live';smBadge.textContent='● Live';}
+    }
+  }
+
   renderCurrentPage();
   updateTimestamp();
-  // Update live status dots in platform table after render
+  // Update live status dots
   if(ytData){
-    const rows=document.querySelectorAll('#plat-tbody tr');
-    rows.forEach(row=>{
+    document.querySelectorAll('#plat-tbody tr').forEach(row=>{
       if(row.querySelector('td:first-child')?.textContent?.includes('YouTube')){
-        const dot=row.querySelector('.status-dot');
-        const label=row.querySelector('td:last-child span');
-        if(dot){dot.className='status-dot s-live';}
-        if(label){label.textContent='Live';label.style.color='var(--green)';}
+        const dot=row.querySelector('.status-dot');const label=row.querySelector('td:last-child span');
+        if(dot)dot.className='status-dot s-live';if(label){label.textContent='Live';label.style.color='var(--green)';}
       }
     });
   }
   if(metaData){
-    const rows=document.querySelectorAll('#plat-tbody tr');
-    rows.forEach(row=>{
+    document.querySelectorAll('#plat-tbody tr').forEach(row=>{
       if(row.querySelector('td:first-child')?.textContent?.includes('Facebook')){
-        const dot=row.querySelector('.status-dot');
-        const label=row.querySelector('td:last-child span');
-        if(dot){dot.className='status-dot s-live';}
-        if(label){label.textContent='Live';label.style.color='var(--green)';}
+        const dot=row.querySelector('.status-dot');const label=row.querySelector('td:last-child span');
+        if(dot)dot.className='status-dot s-live';if(label){label.textContent='Live';label.style.color='var(--green)';}
       }
     });
   }
