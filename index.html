@@ -2348,14 +2348,38 @@ async function fetchSmartMovingJobs(){
     const fromDate = `${currentYear}${String(currentMonth+1).padStart(2,'0')}01`;
     const lastDay = new Date(currentYear, currentMonth+1, 0).getDate();
     const toDate = `${currentYear}${String(currentMonth+1).padStart(2,'0')}${String(lastDay).padStart(2,'0')}`;
-    const r = await fetch(
+    const headers = {'Content-Type':'application/json','x-api-key':apiKey};
+
+    // Step 1: Get all leads for the month
+    const leadsResp = await fetch(
       `https://api-public.smartmoving.com/v1/api/leads?From=${fromDate}&To=${toDate}&PageSize=200&Page=1`,
-      {headers:{'Content-Type':'application/json','x-api-key':apiKey}}
+      {headers}
     );
-    if(!r.ok) return null;
-    const d = await r.json();
-    return d.items || d.data || d || null;
-  }catch{return null;}
+    if(!leadsResp.ok) return null;
+    const leadsData = await leadsResp.json();
+    const leads = leadsData.pageResults || leadsData.items || leadsData.data || [];
+    if(!leads.length) return [];
+
+    // Step 2: Enrich each lead with opportunity revenue (batch with rate limiting)
+    const enriched = await Promise.all(leads.map(async lead => {
+      try {
+        const oppResp = await fetch(
+          `https://api-public.smartmoving.com/v1/api/opportunities/${lead.id}?IncludePayments=true`,
+          {headers}
+        );
+        if(oppResp.ok){
+          const opp = await oppResp.json();
+          lead._finalTotal = opp.estimatedTotal?.finalTotal || opp.payments?.reduce((a,p)=>a+(p.amount||0),0) || 0;
+          lead._opportunityType = opp.opportunityType?.name || opp.type?.name || '';
+        }
+      } catch{}
+      return lead;
+    }));
+    return enriched;
+  }catch(e){
+    console.error('SmartMoving fetch error:', e);
+    return null;
+  }
 }
 
 function applySmartMovingJobs(smRawJobs){
@@ -2363,23 +2387,24 @@ function applySmartMovingJobs(smRawJobs){
   const cache=getSmJobs(currentYear,currentMonth);
   const existingIds=new Set(cache.jobs.filter(j=>j.smId).map(j=>j.smId));
   let added=0;
-  smRawJobs.forEach(job=>{
-    // Leads API uses these field names
-    const id=String(job.id||job.leadId||job.opportunityId||job.Id||job.quoteNumber||job.QuoteNumber||'');
-    if(id&&existingIds.has(id)) return;
-    const total=parseFloat(job.totalAmount||job.estimatedRevenue||job.revenue||job.total||job.Total||job.amount||0);
-    // Leads API uses "referralSource" for how they heard about us
-    const rawSource=job.referralSource||job.ReferralSource||job.source||job.Source||job.leadSource||job.LeadSource||job.howDidYouHearAboutUs||'';
+  smRawJobs.forEach(lead=>{
+    const id=String(lead.id||'');
+    if(!id||existingIds.has(id)) return;
+    // referralSourceName is the human-readable source e.g. "Friend or Family"
+    const rawSource=lead.referralSourceName||lead.referralSource||'';
     const mappedSource=smChannelName(rawSource)||rawSource||'Other';
-    // Leads API uses "moveDate" or "serviceDateFrom"
-    const rawDate=job.moveDate||job.serviceDateFrom||job.serviceDate||job.jobDate||job.date||job.MoveDate||job.createdDate||'';
-    const date=rawDate?String(rawDate).slice(0,10):new Date().toISOString().slice(0,10);
-    const moveSize=job.moveSize||job.MoveSize||job.size||job.moveSizeDescription||'';
-    const opportunityType=job.opportunityType||job.OpportunityType||job.jobType||job.type||job.moveType||'';
-    const customerName=job.customerName||job.CustomerName||job.contactName||job.name||'';
-    const quoteNumber=job.quoteNumber||job.QuoteNumber||job.opportunityNumber||id||'';
+    // serviceDate is integer yyyyMMdd e.g. 20260511
+    const sd=String(lead.serviceDate||'');
+    const date=sd.length===8?`${sd.slice(0,4)}-${sd.slice(4,6)}-${sd.slice(6,8)}`:new Date().toISOString().slice(0,10);
+    const moveSize=lead.moveSizeName||'';
+    // type is the opportunity type enum: Local, Intrastate, Interstate
+    const opportunityType=lead._opportunityType||lead.type?.name||lead.type||'';
+    const customerName=lead.customerName||'';
+    const quoteNumber=String(lead.quoteNumber||'');
+    // Revenue from enriched opportunity data
+    const total=parseFloat(lead._finalTotal||0);
     cache.jobs.push({smId:id,date,source:mappedSource,rawSource,moveSize,opportunityType,customerName,quoteNumber,total,note:moveSize||opportunityType||''});
-    if(id) existingIds.add(id);
+    existingIds.add(id);
     added++;
   });
   if(added>0) saveSmJobs(currentYear,currentMonth,cache);
