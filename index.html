@@ -327,6 +327,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="nav-item active" id="nav-social" onclick="switchPage('social')">📣<div class="tip">Social analytics</div></div>
     <div class="nav-item" id="nav-web" onclick="switchPage('web')">🌐<div class="tip">Website analytics</div></div>
     <div class="nav-item" id="nav-budget" onclick="switchPage('budget')">💰<div class="tip">Marketing budget</div></div>
+    <div class="nav-item" id="nav-roi" onclick="switchPage('roi')">💵<div class="tip">ROI</div></div>
     <div class="nav-item" id="nav-merch" onclick="switchPage('merch')">👕<div class="tip">Merch</div></div>
     <div class="nav-div"></div>
     <div class="nav-item" id="nav-guide" onclick="switchPage('guide')">📖<div class="tip">Setup guide</div></div>
@@ -586,58 +587,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
           </div>
         </div>
 
-        <!-- ROI SECTION -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">ROI &amp; job tracking</div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <div class="card-badge" id="roi-overall-badge">–</div>
-              <div class="card-badge" id="sm-sync-badge" style="display:none;background:rgba(62,207,142,0.1);color:var(--green);border-color:rgba(62,207,142,0.2)">⟳ SmartMoving</div>
-              <button class="ch-btn" onclick="openLogJob()" style="font-size:12px;padding:4px 10px">+ Log job</button>
-            </div>
-          </div>
-          <div class="metric-row" style="margin-bottom:16px">
-            <div class="metric-card">
-              <div class="metric-label">Total revenue</div>
-              <div class="metric-value" id="roi-total-rev">$0</div>
-              <div class="metric-delta delta-neutral" id="roi-rev-delta">→ This month</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Jobs booked</div>
-              <div class="metric-value" id="roi-total-jobs">0</div>
-              <div class="metric-delta delta-neutral">→ Across all channels</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Overall ROI</div>
-              <div class="metric-value" id="roi-overall">–</div>
-              <div class="metric-delta delta-neutral">Revenue ÷ spend</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Avg. job value</div>
-              <div class="metric-value" id="roi-avg-job">–</div>
-              <div class="metric-delta delta-neutral">→ Revenue per job</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Best channel</div>
-              <div class="metric-value" style="font-size:14px;line-height:1.3" id="roi-best-ch">–</div>
-              <div class="metric-delta delta-neutral">→ By ROI</div>
-            </div>
-          </div>
-
-          <div class="two-col" style="margin-bottom:16px">
-            <div>
-              <div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:500">Revenue vs spend by channel</div>
-              <div class="chart-wrap h180"><canvas id="roiBarChart" role="img" aria-label="Revenue vs spend per channel">Revenue vs spend.</canvas></div>
-            </div>
-            <div>
-              <div style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:500">ROI multiplier by channel</div>
-              <div class="chart-wrap h180"><canvas id="roiMultChart" role="img" aria-label="ROI multiplier per channel">ROI multiplier.</canvas></div>
-            </div>
-          </div>
-
-          <div class="roi-section-title">Per-channel breakdown</div>
-          <div class="roi-channel-grid" id="roi-channel-grid"></div>
-        </div>
       </div>
 
       <div id="budget-compare-view" style="display:none">
@@ -645,6 +594,97 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="card">
           <div class="card-header"><div class="card-title" id="budget-compare-chart-title">Comparison</div></div>
           <div class="chart-wrap h220"><canvas id="budgetCompareChart" role="img" aria-label="Budget comparison chart">Budget comparison.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ ROI PAGE ══════════════ -->
+    <div class="page" id="page-roi">
+      <div class="page-header">
+        <div class="page-title">ROI</div>
+        <div class="page-sub" id="roi-sub">Jobs, revenue &amp; return on investment by lead source</div>
+      </div>
+      <div id="past-banner-roi" style="display:none" class="past-banner">
+        📅 Viewing historical data — <span>Click metrics to edit manually</span>
+      </div>
+
+      <div id="roi-month-view">
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="metric-label">Total revenue</div>
+            <div class="metric-value" id="roi-total-rev">$0</div>
+            <div class="metric-delta delta-neutral">→ This month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Jobs booked</div>
+            <div class="metric-value" id="roi-total-jobs">0</div>
+            <div class="metric-delta delta-neutral">→ Across all channels</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Overall ROI</div>
+            <div class="metric-value" id="roi-overall">–</div>
+            <div class="metric-delta delta-neutral">Revenue ÷ spend</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Avg. job value</div>
+            <div class="metric-value" id="roi-avg-job">–</div>
+            <div class="metric-delta delta-neutral">→ Revenue per job</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Best channel</div>
+            <div class="metric-value" style="font-size:14px;line-height:1.3" id="roi-best-ch">–</div>
+            <div class="metric-delta delta-neutral">→ By ROI</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Revenue vs spend by channel</div>
+            </div>
+            <div class="chart-wrap h220"><canvas id="roiBarChart" role="img" aria-label="Revenue vs spend per channel">Revenue vs spend.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">ROI multiplier by channel</div>
+            </div>
+            <div class="chart-wrap h220"><canvas id="roiMultChart" role="img" aria-label="ROI multiplier per channel">ROI multiplier.</canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Per-channel breakdown</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="card-badge" id="roi-overall-badge">–</div>
+              <div class="card-badge" id="sm-sync-badge" style="display:none;background:rgba(62,207,142,0.1);color:var(--green);border-color:rgba(62,207,142,0.2)">⟳ SmartMoving</div>
+              <button class="ch-btn" onclick="openLogJob()" style="font-size:12px;padding:4px 10px">+ Log job</button>
+            </div>
+          </div>
+          <div class="roi-channel-grid" id="roi-channel-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">All jobs this month</div></div>
+          <table class="pg-table" id="roi-jobs-table">
+            <thead><tr>
+              <th>Date</th>
+              <th>Channel</th>
+              <th>Notes</th>
+              <th>Source</th>
+              <th style="text-align:right">Revenue</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="roi-jobs-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="roi-compare-view" style="display:none">
+        <div class="comparison-grid" id="roi-compare-grid"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title" id="roi-compare-chart-title">Comparison</div></div>
+          <div class="chart-wrap h220"><canvas id="roiCompareChart" role="img" aria-label="ROI comparison chart">ROI comparison.</canvas></div>
         </div>
       </div>
     </div>
@@ -1133,7 +1173,7 @@ function saveBudgetData(y,m,data){
 // ══════════════════════════════════════════════
 // NAVIGATION & VIEW
 // ══════════════════════════════════════════════
-const PAGES = ['social','web','budget','merch','guide','settings'];
+const PAGES = ['social','web','budget','roi','merch','guide','settings'];
 
 function switchPage(id){
   PAGES.forEach(p=>{
@@ -1144,7 +1184,7 @@ function switchPage(id){
   document.getElementById('settings-nav-btn').classList.toggle('active',id==='settings');
   currentPage=id;
   // Guide and Settings don't use month selector
-  const useMonth = ['social','web','budget'].includes(id);
+  const useMonth = ['social','web','budget','roi'].includes(id);
   document.getElementById('view-tabs').style.visibility = useMonth?'visible':'hidden';
   document.getElementById('month-display').parentElement.style.visibility = useMonth?'visible':'hidden';
   if(useMonth) renderCurrentPage();
@@ -1202,6 +1242,19 @@ function renderCurrentPage(){
   if(currentPage==='social') renderSocial();
   else if(currentPage==='web') renderWeb();
   else if(currentPage==='budget') renderBudget();
+  else if(currentPage==='roi') renderROIPage();
+}
+
+function updateMonthDisplay(){
+  const isCurrent=isCurrentMonth();
+  const el=document.getElementById('month-display');
+  el.textContent=MONTHS[currentMonth]+' '+currentYear;
+  el.classList.toggle('current',isCurrent);
+  document.getElementById('next-month-btn').disabled=isCurrent;
+  ['social','web','budget','roi'].forEach(p=>{
+    const b=document.getElementById('past-banner-'+p);
+    if(b)b.style.display=isCurrent?'none':'flex';
+  });
 }
 
 // ══════════════════════════════════════════════
@@ -1452,8 +1505,6 @@ function renderBudget(){
     renderChannelList(data);
     // charts
     renderBudgetCharts(data);
-    // ROI
-    renderROI(data);
   } else {
     document.getElementById('budget-month-view').style.display='none';
     document.getElementById('budget-compare-view').style.display='';
@@ -1691,6 +1742,7 @@ function openLogJob(){
     data.channels[idx].jobs.push({revenue,note:note||'Job',date:date||today.toISOString().slice(0,10),source});
     saveBudgetData(currentYear,currentMonth,data);
     renderBudget();
+    if(currentPage==='roi') renderROIPage();
     return true;
   };
   document.getElementById('modal').style.display='flex';
@@ -1846,7 +1898,88 @@ function renderBudgetComparison(){
 }
 
 // ══════════════════════════════════════════════
-// COMPARISON HELPERS
+// ROI PAGE
+// ══════════════════════════════════════════════
+function renderROIPage(){
+  const data=getBudgetData(currentYear,currentMonth);
+  if(currentView==='month'){
+    document.getElementById('roi-month-view').style.display='';
+    document.getElementById('roi-compare-view').style.display='none';
+    renderROI(data);
+    // Jobs table
+    const channels=data.channels||[];
+    const allJobs=[];
+    channels.forEach(ch=>{
+      (ch.jobs||[]).forEach((j,ji)=>{
+        allJobs.push({...j, chName:ch.name, chColor:ch.color, chIdx:channels.indexOf(ch), jIdx:ji});
+      });
+    });
+    allJobs.sort((a,b)=>b.date.localeCompare(a.date));
+    const tbody=document.getElementById('roi-jobs-tbody');
+    if(allJobs.length===0){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">${get('sm-api-key')?'No jobs imported yet — hit ↻ to sync from SmartMoving':'Connect SmartMoving in Settings to auto-import jobs, or click "+ Log job" to add manually'}</td></tr>`;
+    } else {
+      tbody.innerHTML=allJobs.map(j=>{
+        const srcLabel=j.source==='smartmoving'?'SmartMoving':j.source==='self'?'Self-reported':'Manual';
+        const srcColor=j.source==='smartmoving'?'var(--green)':j.source==='self'?'var(--accent)':'var(--text3)';
+        const delBtn=j.source==='smartmoving'
+          ?'<span title="Auto-imported" style="color:var(--text3);font-size:11px">🔒</span>'
+          :`<span style="color:var(--text3);cursor:pointer;font-size:14px" onclick="deleteJobFromROI('${j.chIdx}','${j.jIdx}')" title="Remove">×</span>`;
+        return `<tr>
+          <td style="color:var(--text2)">${j.date}</td>
+          <td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${j.chColor};display:inline-block"></span>${j.chName}</span></td>
+          <td style="color:var(--text2)">${j.note||'–'}</td>
+          <td><span style="font-size:11px;color:${srcColor}">${srcLabel}</span></td>
+          <td style="color:var(--green);font-family:var(--mono);font-weight:500">$${j.revenue.toLocaleString()}</td>
+          <td style="text-align:right">${delBtn}</td>
+        </tr>`;
+      }).join('');
+    }
+  } else {
+    document.getElementById('roi-month-view').style.display='none';
+    document.getElementById('roi-compare-view').style.display='';
+    renderROIComparison();
+  }
+}
+
+function deleteJobFromROI(chIdx,jIdx){
+  if(!confirm('Remove this job entry?'))return;
+  const data=getBudgetData(currentYear,currentMonth);
+  if(data.channels[chIdx]&&data.channels[chIdx].jobs){
+    data.channels[chIdx].jobs.splice(jIdx,1);
+    saveBudgetData(currentYear,currentMonth,data);
+    renderROIPage();
+  }
+}
+
+function renderROIComparison(){
+  const isQoQ=currentView==='quarter';
+  const periods=isQoQ?getQoQPeriods():getYoYPeriods();
+  const grid=document.getElementById('roi-compare-grid');
+  grid.innerHTML=periods.map((p,pi)=>{
+    let totalRevenue=0,totalSpent=0,totalJobs=0;
+    p.months.forEach(([y,m])=>{
+      const d=getBudgetData(y,m);
+      totalRevenue+=d.channels.reduce((a,c)=>a+(c.jobs||[]).reduce((b,j)=>b+j.revenue,0),0);
+      totalSpent+=d.channels.reduce((a,c)=>a+c.entries.reduce((b,e)=>b+e.amount,0),0);
+      totalJobs+=d.channels.reduce((a,c)=>a+(c.jobs||[]).length,0);
+    });
+    const roi=totalSpent>0?(totalRevenue/totalSpent):0;
+    const prev=periods[pi-1];
+    let prevRev=0;
+    if(prev){prev.months.forEach(([y,m])=>{const d=getBudgetData(y,m);prevRev+=d.channels.reduce((a,c)=>a+(c.jobs||[]).reduce((b,j)=>b+j.revenue,0),0);});}
+    const diff=prev&&prevRev>0?Math.round(((totalRevenue-prevRev)/prevRev)*100):null;
+    return `<div class="compare-card">
+      <div class="compare-period">${p.label}</div>
+      <div class="compare-metric"><span class="compare-label">Revenue</span><span class="compare-val" style="color:var(--green)">$${totalRevenue.toLocaleString()}${diff!==null?`<span class="compare-diff ${diff>=0?'diff-up':'diff-down'}">${diff>=0?'+':''}${diff}%</span>`:''}</span></div>
+      <div class="compare-metric"><span class="compare-label">Jobs booked</span><span class="compare-val">${totalJobs}</span></div>
+      <div class="compare-metric"><span class="compare-label">Total spend</span><span class="compare-val">$${totalSpent.toLocaleString()}</span></div>
+      <div class="compare-metric"><span class="compare-label">ROI</span><span class="compare-val ${roi>=3?'roi-good':roi>=1?'roi-ok':roi>0?'roi-bad':'roi-none'}">${roi>0?roi.toFixed(1)+'×':'–'}</span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('roi-compare-chart-title').textContent=isQoQ?'Quarter-over-quarter revenue':'Year-over-year revenue';
+  renderCompareChart('roiCompareChart',periods,'revenue','Revenue',(y,m)=>getBudgetData(y,m).channels.reduce((a,c)=>a+(c.jobs||[]).reduce((b,j)=>b+j.revenue,0),0));
+}
 // ══════════════════════════════════════════════
 function getQoQPeriods(){
   const q=Math.floor(currentMonth/3);
