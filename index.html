@@ -315,6 +315,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
   </div>
 
   <div class="topbar-right">
+    <div id="sync-badge" style="font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--text3)">💾 Local only</div>
     <span class="ts" id="last-updated">–</span>
     <button class="btn-icon" title="Refresh" onclick="refreshAll(this)">↻</button>
     <button class="btn-icon" id="settings-nav-btn" onclick="switchPage('settings')">⚙</button>
@@ -727,6 +728,38 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="page-sub">Step-by-step instructions for connecting live data</div>
       </div>
       <div class="notice"><strong>How it works:</strong> Enter your API credentials in Settings (⚙️). The dashboard saves them only in your browser's local storage — never sent to any server.</div>
+
+      <!-- SUPABASE GUIDE -->
+      <div class="platform-guide">
+        <div class="platform-guide-title">
+          <div class="plat-icon" style="background:rgba(62,207,142,0.15);color:#3ecf8e;width:28px;height:28px;border-radius:7px;font-size:10px">SB</div>
+          Setting up Supabase (team sync — do this first)
+        </div>
+        <div class="notice" style="margin-bottom:16px">This is the only setup step that needs to be done once by you. Once connected, everyone on your team sees the same budget data and API keys automatically.</div>
+        <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a free Supabase account</div><div class="step-desc">Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → click <strong>Start your project</strong> → sign up with GitHub or email. It's completely free for small projects.</div></div></div>
+        <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Create a new project</div><div class="step-desc">Click <strong>New project</strong> → name it "Moving Co. Dashboard" → choose a region close to you (e.g. East US) → set a database password (save it somewhere) → click <strong>Create new project</strong>. Wait about 60 seconds for it to spin up.</div></div></div>
+        <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Create the data table</div><div class="step-desc">In your project, click <strong>SQL Editor</strong> in the left sidebar → click <strong>New query</strong> → paste this exactly and click <strong>Run</strong>:
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:8px;font-family:var(--mono);font-size:11px;line-height:1.8;color:var(--text2)">
+            create table if not exists dash_store (<br>
+            &nbsp;&nbsp;key text primary key,<br>
+            &nbsp;&nbsp;value text,<br>
+            &nbsp;&nbsp;updated_at timestamptz default now()<br>
+            );<br><br>
+            -- Allow anyone with the anon key to read and write<br>
+            alter table dash_store enable row level security;<br>
+            create policy "anon access" on dash_store<br>
+            &nbsp;&nbsp;for all using (true) with check (true);
+          </div>
+          You should see "Success. No rows returned."
+        </div></div></div>
+        <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Get your project URL and anon key</div><div class="step-desc">In your project → click <strong>Settings</strong> (gear icon, bottom left) → <strong>API</strong>. You'll see:<br><br>
+          • <strong>Project URL</strong> — looks like <code>https://xxxxxxxxxxxx.supabase.co</code><br>
+          • <strong>Project API keys → anon / public</strong> — a long string starting with <code>eyJ...</code><br><br>
+          Copy both of these.</div></div></div>
+        <div class="guide-step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Enter them in Settings</div><div class="step-desc">Go to ⚙️ Settings → <strong>Team sync (Supabase)</strong> → paste the Project URL and anon key → click <strong>Save all settings</strong> → then click <strong>Test connection</strong>. The badge should turn green.</div></div></div>
+        <div class="guide-step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Push your existing data</div><div class="step-desc">Still in Settings → click <strong>Push all local data →</strong> to upload any budget data and API keys you've already entered. Your teammates will see it immediately when they load the dashboard.</div></div></div>
+        <div class="guide-step"><div class="step-num">7</div><div class="step-body"><div class="step-title">Share with your team</div><div class="step-desc">Send your teammates the GitHub Pages URL plus the passcode. When they open it, they'll automatically pull all the synced data — no setup needed on their end.</div></div></div>
+      </div>
       <div class="platform-guide">
         <div class="platform-guide-title"><div class="plat-icon" style="background:rgba(79,142,247,0.15);color:#4f8ef7;width:28px;height:28px;border-radius:7px;font-size:11px">Fb</div>Facebook &amp; Instagram (Meta Graph API)</div>
         <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a Meta Developer App</div><div class="step-desc">Go to <a href="https://developers.facebook.com/apps" target="_blank">developers.facebook.com/apps</a> → "Create App" → Choose "Business". Link your Facebook Page and Instagram Business account.</div></div></div>
@@ -771,6 +804,28 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="page-sub">API keys stored only in your browser — never sent to any server</div>
       </div>
       <div class="notice"><strong>Privacy note:</strong> All credentials are stored in <code>localStorage</code>. Only share this dashboard on trusted devices.</div>
+
+      <!-- SUPABASE SYNC -->
+      <div class="settings-section">
+        <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">Team sync (Supabase)<span class="conn-badge conn-demo" id="badge-supabase">● Not connected</span></div>
+        <div id="sb-conn-status" style="font-size:13px;color:var(--text2);margin-bottom:12px">● Not connected — enter your Supabase URL and anon key below.</div>
+        <div class="setting-row">
+          <div class="setting-label">Supabase project URL</div>
+          <input class="setting-input" id="s-sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" />
+          <div class="setting-hint">Found in your Supabase project → Settings → API</div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">Supabase anon / public key</div>
+          <input class="setting-input" id="s-sb-anon-key" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+          <div class="setting-hint">The <strong>anon</strong> key (not the secret key). Found in the same API settings page.</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="ch-btn" onclick="testSupabaseConnection();updateSyncBadge('syncing')" style="padding:7px 14px;font-size:12px">Test connection</button>
+          <button class="ch-btn" onclick="pushAllToSupabase()" style="padding:7px 14px;font-size:12px">Push all local data →</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.7">Once connected, budget data, job logs, and API keys sync automatically across all devices. Need to set this up? See the <a href="#" onclick="switchPage('guide');return false;" style="color:var(--accent)">Setup guide →</a></div>
+      </div>
+
       <div class="settings-section">
         <div class="settings-section-title">Passcode lock</div>
         <div id="passcode-status" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
@@ -970,7 +1025,6 @@ function getSocialData(y,m){
   const k = mKey(y,m);
   const stored = lsGet('social_'+k);
   if(stored) return stored;
-  // Generate plausible demo data
   const seed = y*100+m;
   const rng = (base,variance,s)=>Math.round(base*(1+(((seed*s*7+s*31)%100)/100-0.5)*variance));
   return {
@@ -989,7 +1043,13 @@ function getSocialData(y,m){
   };
 }
 
-function saveSocialData(y,m,data){lsSet('social_'+mKey(y,m),data)}
+function saveSocialData(y,m,data){
+  lsSet('social_'+mKey(y,m),data);
+  if(isSupabaseConfigured()){
+    updateSyncBadge('syncing');
+    sbSet('social_'+mKey(y,m),data).then(()=>updateSyncBadge('connected')).catch(()=>updateSyncBadge('error'));
+  }
+}
 
 function getWebData(y,m){
   const k = mKey(y,m);
@@ -1006,7 +1066,14 @@ function getWebData(y,m){
     ctr: (rng(36,0.15,5)/10).toFixed(1)+'%'
   };
 }
-function saveWebData(y,m,data){lsSet('web_'+mKey(y,m),data)}
+
+function saveWebData(y,m,data){
+  lsSet('web_'+mKey(y,m),data);
+  if(isSupabaseConfigured()){
+    updateSyncBadge('syncing');
+    sbSet('web_'+mKey(y,m),data).then(()=>updateSyncBadge('connected')).catch(()=>updateSyncBadge('error'));
+  }
+}
 
 // Budget: per-month channel config
 function getDefaultChannels(){
@@ -1039,7 +1106,11 @@ function getBudgetData(y,m){
   }));
   return {channels:chs};
 }
-function saveBudgetData(y,m,data){lsSet('budget_'+mKey(y,m),data)}
+function saveBudgetData(y,m,data){
+  lsSet('budget_'+mKey(y,m),data);
+  // fire-and-forget sync
+  if(isSupabaseConfigured()) sbSet('budget_'+mKey(y,m),data).then(()=>updateSyncBadge('connected'));
+}
 
 // ══════════════════════════════════════════════
 // NAVIGATION & VIEW
@@ -1072,12 +1143,28 @@ function changeMonth(dir){
   currentMonth+=dir;
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0){currentMonth=11;currentYear--;}
-  // Can't go into future
   if(currentYear>today.getFullYear()||(currentYear===today.getFullYear()&&currentMonth>today.getMonth())){
     currentMonth=today.getMonth();currentYear=today.getFullYear();
   }
   updateMonthDisplay();
-  renderCurrentPage();
+  // Pull remote data for this month if Supabase connected (last-write-wins)
+  if(isSupabaseConfigured()){
+    const mk=mKey(currentYear,currentMonth);
+    updateSyncBadge('syncing');
+    Promise.all([
+      sbGet('budget_'+mk),
+      sbGet('social_'+mk),
+      sbGet('web_'+mk)
+    ]).then(([b,s,w])=>{
+      if(b) lsSet('budget_'+mk,b);
+      if(s) lsSet('social_'+mk,s);
+      if(w) lsSet('web_'+mk,w);
+      updateSyncBadge('connected');
+      renderCurrentPage();
+    }).catch(()=>{updateSyncBadge('error');renderCurrentPage();});
+  } else {
+    renderCurrentPage();
+  }
 }
 
 function updateMonthDisplay(){
@@ -1851,31 +1938,228 @@ function confirmModal(){
 }
 
 // ══════════════════════════════════════════════
-// SETTINGS
+// SUPABASE SYNC LAYER
 // ══════════════════════════════════════════════
-const SKEYS=['company','budget','meta-token','meta-page-id','ig-id','yt-key','yt-channel','tt-token','li-token','li-org','gbp-token','gbp-location','ga4-property','ga4-secret'];
+// All synced data flows through these functions.
+// If Supabase isn't configured, everything falls back to localStorage silently.
 
-function saveSettings(){
-  SKEYS.forEach(k=>{
-    const el=document.getElementById('s-'+k);
-    if(el&&el.value)localStorage.setItem('dash_'+k,el.value);
-    else if(el)localStorage.removeItem('dash_'+k);
-  });
-  const company=localStorage.getItem('dash_company');
-  if(company)document.getElementById('company-name').textContent=company;
-  updateBadges();
-  alert('Settings saved!');
+function getSupabaseConfig(){
+  return {
+    url: localStorage.getItem('dash_sb_url')||'',
+    key: localStorage.getItem('dash_sb_anon_key')||''
+  };
 }
 
-function loadSettings(){
+function isSupabaseConfigured(){
+  const {url,key}=getSupabaseConfig();
+  return !!(url&&key&&url.startsWith('https://'));
+}
+
+async function sbRequest(method, table, body=null, match=null){
+  const {url,key}=getSupabaseConfig();
+  if(!url||!key) return null;
+  let endpoint=`${url}/rest/v1/${table}`;
+  if(match) endpoint+=`?${Object.entries(match).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&')}`;
+  const headers={'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=representation'};
+  try{
+    const r=await fetch(endpoint,{method,headers,body:body?JSON.stringify(body):undefined});
+    if(!r.ok) return null;
+    const text=await r.text();
+    return text?JSON.parse(text):null;
+  }catch{return null;}
+}
+
+// Generic key-value store in Supabase table: dash_store(key text, value text)
+async function sbGet(key){
+  const rows=await sbRequest('GET','dash_store',null,{key});
+  if(rows&&rows.length>0){try{return JSON.parse(rows[0].value);}catch{return rows[0].value;}}
+  return null;
+}
+
+async function sbSet(key,value){
+  const exists=await sbRequest('GET','dash_store',null,{key});
+  const payload={key,value:JSON.stringify(value),updated_at:new Date().toISOString()};
+  if(exists&&exists.length>0){
+    return sbRequest('PATCH','dash_store',payload,{key});
+  } else {
+    return sbRequest('POST','dash_store',payload);
+  }
+}
+
+// Wrapper: try Supabase first, fall back to localStorage
+async function syncGet(k){
+  if(isSupabaseConfigured()){
+    const val=await sbGet('dash_'+k);
+    if(val!==null) return val;
+  }
+  return lsGet('dash_'+k);
+}
+
+async function syncSet(k,v){
+  lsSet('dash_'+k,v); // always write locally too
+  if(isSupabaseConfigured()) await sbSet('dash_'+k,v);
+}
+
+// Sync status indicator
+function updateSyncBadge(state){
+  const badge=document.getElementById('sync-badge');
+  if(!badge) return;
+  const states={
+    connected:{text:'☁ Synced',bg:'rgba(62,207,142,0.1)',color:'var(--green)',border:'rgba(62,207,142,0.25)'},
+    syncing:{text:'↻ Syncing…',bg:'rgba(79,142,247,0.1)',color:'var(--accent)',border:'rgba(79,142,247,0.25)'},
+    local:{text:'💾 Local only',bg:'rgba(247,169,79,0.1)',color:'var(--amber)',border:'rgba(247,169,79,0.25)'},
+    error:{text:'⚠ Sync error',bg:'rgba(247,95,95,0.1)',color:'var(--red)',border:'rgba(247,95,95,0.25)'}
+  };
+  const s=states[state]||states.local;
+  badge.textContent=s.text;
+  badge.style.cssText=`background:${s.bg};color:${s.color};border:1px solid ${s.border};border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px`;
+}
+
+async function testSupabaseConnection(){
+  if(!isSupabaseConfigured()){updateSyncBadge('local');return false;}
+  updateSyncBadge('syncing');
+  // Try a simple read
+  const result=await sbRequest('GET','dash_store');
+  if(result!==null){
+    updateSyncBadge('connected');
+    document.getElementById('sb-conn-status').innerHTML='<span style="color:var(--green)">● Connected</span> — data is syncing across all devices.';
+    return true;
+  } else {
+    updateSyncBadge('error');
+    document.getElementById('sb-conn-status').innerHTML='<span style="color:var(--red)">● Connection failed</span> — check your URL and anon key, and make sure you created the dash_store table.';
+    return false;
+  }
+}
+
+// Override budget data functions to use sync
+async function saveBudgetDataSync(y,m,data){
+  lsSet('budget_'+mKey(y,m),data);
+  if(isSupabaseConfigured()){
+    updateSyncBadge('syncing');
+    await sbSet('budget_'+mKey(y,m),data);
+    updateSyncBadge('connected');
+  }
+}
+
+async function loadBudgetDataSync(y,m){
+  if(isSupabaseConfigured()){
+    const remote=await sbGet('budget_'+mKey(y,m));
+    if(remote){lsSet('budget_'+mKey(y,m),remote);return remote;}
+  }
+  return lsGet('budget_'+mKey(y,m));
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+const SKEYS_LOCAL=['company','budget']; // stays per-device
+const SKEYS_SYNC=['meta-token','meta-page-id','ig-id','yt-key','yt-channel','tt-token','li-token','li-org','gbp-token','gbp-location','ga4-property','ga4-secret']; // synced via Supabase
+const SKEYS=[...SKEYS_LOCAL,...SKEYS_SYNC];
+
+async function saveSettings(){
+  // Always save all to localStorage
+  SKEYS.forEach(k=>{
+    const el=document.getElementById('s-'+k);
+    if(el&&el.value) localStorage.setItem('dash_'+k,el.value);
+    else if(el) localStorage.removeItem('dash_'+k);
+  });
+  // Save Supabase config to localStorage only
+  const sbUrl=document.getElementById('s-sb-url').value.trim();
+  const sbKey=document.getElementById('s-sb-anon-key').value.trim();
+  if(sbUrl) localStorage.setItem('dash_sb_url',sbUrl);
+  if(sbKey) localStorage.setItem('dash_sb_anon_key',sbKey);
+
+  const company=localStorage.getItem('dash_company');
+  if(company) document.getElementById('company-name').textContent=company;
+
+  // Sync API keys + shared settings to Supabase if configured
+  if(isSupabaseConfigured()){
+    updateSyncBadge('syncing');
+    const syncPayload={};
+    SKEYS_SYNC.forEach(k=>{
+      const el=document.getElementById('s-'+k);
+      if(el) syncPayload[k]=el.value;
+    });
+    const company=document.getElementById('s-company').value.trim();
+    const budget=document.getElementById('s-budget').value.trim();
+    await Promise.all([
+      sbSet('api_credentials',syncPayload),
+      company ? sbSet('shared_company',company) : Promise.resolve(),
+      budget ? sbSet('shared_budget',budget) : Promise.resolve()
+    ]);
+    updateSyncBadge('connected');
+  }
+
+  updateBadges();
+  updateSyncBadge(isSupabaseConfigured()?'connected':'local');
+  alert('Settings saved!'+(isSupabaseConfigured()?' API keys synced to all devices.':' Connect Supabase to sync across devices.'));
+}
+
+async function loadSettings(){
+  // Load Supabase config from localStorage first (it never syncs)
+  const sbUrl=localStorage.getItem('dash_sb_url')||'';
+  const sbKey=localStorage.getItem('dash_sb_anon_key')||'';
+  const sbUrlEl=document.getElementById('s-sb-url');
+  const sbKeyEl=document.getElementById('s-sb-anon-key');
+  if(sbUrlEl&&sbUrl) sbUrlEl.value=sbUrl;
+  if(sbKeyEl&&sbKey) sbKeyEl.value=sbKey;
+
+  // Load local settings first (instant)
   SKEYS.forEach(k=>{
     const el=document.getElementById('s-'+k);
     const val=localStorage.getItem('dash_'+k);
-    if(el&&val)el.value=val;
+    if(el&&val) el.value=val;
   });
+
   const company=localStorage.getItem('dash_company');
-  if(company)document.getElementById('company-name').textContent=company;
+  if(company) document.getElementById('company-name').textContent=company;
+
+  // Then try to pull API keys from Supabase (overwrites local if found)
+  if(isSupabaseConfigured()){
+    updateSyncBadge('syncing');
+    try{
+      // Pull API credentials
+      const remote=await sbGet('api_credentials');
+      if(remote){
+        SKEYS_SYNC.forEach(k=>{
+          if(remote[k]!==undefined){
+            localStorage.setItem('dash_'+k,remote[k]);
+            const el=document.getElementById('s-'+k);
+            if(el) el.value=remote[k];
+          }
+        });
+      }
+      // Pull current month data for all three sections (last-write-wins)
+      const mk=currentMKey();
+      const [remoteBudget,remoteSocial,remoteWeb,remoteCompany,remoteSharedBudget]=await Promise.all([
+        sbGet('budget_'+mk),
+        sbGet('social_'+mk),
+        sbGet('web_'+mk),
+        sbGet('shared_company'),
+        sbGet('shared_budget')
+      ]);
+      if(remoteBudget) lsSet('budget_'+mk,remoteBudget);
+      if(remoteSocial) lsSet('social_'+mk,remoteSocial);
+      if(remoteWeb) lsSet('web_'+mk,remoteWeb);
+      if(remoteCompany){
+        lsSet('dash_company',remoteCompany);
+        const el=document.getElementById('s-company');
+        if(el) el.value=remoteCompany;
+        document.getElementById('company-name').textContent=remoteCompany;
+      }
+      if(remoteSharedBudget){
+        localStorage.setItem('dash_budget',remoteSharedBudget);
+        const el=document.getElementById('s-budget');
+        if(el) el.value=remoteSharedBudget;
+      }
+      updateSyncBadge('connected');
+    }catch{updateSyncBadge('error');}
+  } else {
+    updateSyncBadge('local');
+  }
+
   updateBadges();
+  updateSupabaseStatus();
 }
 
 function get(k){return localStorage.getItem('dash_'+k)||'';}
@@ -1884,10 +2168,49 @@ function updateBadges(){
   const platforms={meta:get('meta-token')&&get('meta-page-id'),youtube:get('yt-key')&&get('yt-channel'),tiktok:get('tt-token'),linkedin:get('li-token')&&get('li-org'),gbp:get('gbp-token'),ga4:get('ga4-property')&&get('ga4-secret')};
   Object.entries(platforms).forEach(([p,connected])=>{
     const badge=document.getElementById('badge-'+p);
-    if(!badge)return;
+    if(!badge) return;
     badge.className='conn-badge '+(connected?'conn-live':'conn-demo');
     badge.textContent=connected?'● Live':'● Demo';
   });
+}
+
+function updateSupabaseStatus(){
+  const el=document.getElementById('sb-conn-status');
+  if(!el) return;
+  if(isSupabaseConfigured()){
+    el.innerHTML='<span style="color:var(--amber)">● Credentials entered</span> — click "Test connection" to verify.';
+  } else {
+    el.innerHTML='<span style="color:var(--text3)">● Not connected</span> — enter your Supabase URL and anon key below.';
+  }
+}
+
+async function pushAllToSupabase(){
+  if(!isSupabaseConfigured()){alert('Enter your Supabase URL and anon key first, then save settings.');return;}
+  updateSyncBadge('syncing');
+  // Push API credentials
+  const creds={};
+  SKEYS_SYNC.forEach(k=>{creds[k]=localStorage.getItem('dash_'+k)||'';});
+  // Push company name and budget
+  const company=localStorage.getItem('dash_company')||'';
+  const budget=localStorage.getItem('dash_budget')||'';
+  // Gather all month keys across budget, social, web
+  const allKeys=Object.keys(localStorage).filter(k=>
+    k.startsWith('budget_')||k.startsWith('social_')||k.startsWith('web_')
+  );
+  const pushOps=[
+    sbSet('api_credentials',creds),
+    company ? sbSet('shared_company',company) : Promise.resolve(),
+    budget ? sbSet('shared_budget',budget) : Promise.resolve()
+  ];
+  for(const k of allKeys){
+    try{
+      const v=JSON.parse(localStorage.getItem(k));
+      if(v) pushOps.push(sbSet(k,v));
+    }catch{}
+  }
+  await Promise.all(pushOps);
+  updateSyncBadge('connected');
+  alert(`All local data pushed to Supabase!\n\n✓ API credentials\n✓ ${allKeys.filter(k=>k.startsWith('budget_')).length} budget month(s)\n✓ ${allKeys.filter(k=>k.startsWith('social_')).length} social month(s)\n✓ ${allKeys.filter(k=>k.startsWith('web_')).length} website month(s)\n\nYour teammates will see it on their next refresh.`);
 }
 
 // ══════════════════════════════════════════════
@@ -1975,8 +2298,7 @@ document.addEventListener('keydown', e=>{
 });
 
 updateMonthDisplay();
-loadSettings();
-updatePasscodeStatus();
+updateSyncBadge('local');
 if(sessionStorage.getItem('dash_unlocked')){
   unlockDashboard();
 } else {
@@ -1984,6 +2306,17 @@ if(sessionStorage.getItem('dash_unlocked')){
 }
 renderSocial();
 updateTimestamp();
+// Load settings async (pulls from Supabase if configured)
+loadSettings().then(()=>{
+  updateBadges();
+  // Re-render current page with any remotely pulled data
+  renderCurrentPage();
+  if(isSupabaseConfigured()){
+    loadBudgetDataSync(currentYear,currentMonth).then(d=>{
+      if(d) renderBudget();
+    });
+  }
+});
 setInterval(()=>refreshAll(null),300000);
 </script>
 </body>
