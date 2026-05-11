@@ -296,7 +296,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
   <div class="topbar-left">
     <div class="logo">
       <div class="logo-icon">🚛</div>
-      <span id="company-name">GoodGuys</span>
+      <span id="company-name">Moving Co.</span>
     </div>
     <div class="live-pill"><div class="live-dot"></div>Live</div>
   </div>
@@ -2241,19 +2241,44 @@ async function fetchMetaData(){
 async function refreshAll(btn){
   if(btn){btn.classList.add('spinning');setTimeout(()=>btn.classList.remove('spinning'),600);}
   const[metaData,ytData]=await Promise.all([fetchMetaData(),fetchYouTubeData()]);
+  const d=getSocialData(currentYear,currentMonth);
+  let hasLive=false;
   if(metaData&&isCurrentMonth()){
-    const d=getSocialData(currentYear,currentMonth);
     d.platforms.fb.followers=metaData.fan_count||d.platforms.fb.followers;
-    saveSocialData(currentYear,currentMonth,d);
-    document.getElementById('social-source-badge').textContent='Partial live';
+    hasLive=true;
   }
   if(ytData&&isCurrentMonth()){
-    const d=getSocialData(currentYear,currentMonth);
     d.platforms.yt.followers=parseInt(ytData.subscriberCount)||d.platforms.yt.followers;
-    saveSocialData(currentYear,currentMonth,d);
+    d.platforms.yt.impressions=parseInt(ytData.viewCount)||d.platforms.yt.impressions;
+    hasLive=true;
   }
+  if(hasLive) saveSocialData(currentYear,currentMonth,d);
   renderCurrentPage();
   updateTimestamp();
+  // Update live status dots in platform table after render
+  if(ytData){
+    const rows=document.querySelectorAll('#plat-tbody tr');
+    rows.forEach(row=>{
+      if(row.querySelector('td:first-child')?.textContent?.includes('YouTube')){
+        const dot=row.querySelector('.status-dot');
+        const label=row.querySelector('td:last-child span');
+        if(dot){dot.className='status-dot s-live';}
+        if(label){label.textContent='Live';label.style.color='var(--green)';}
+      }
+    });
+  }
+  if(metaData){
+    const rows=document.querySelectorAll('#plat-tbody tr');
+    rows.forEach(row=>{
+      if(row.querySelector('td:first-child')?.textContent?.includes('Facebook')){
+        const dot=row.querySelector('.status-dot');
+        const label=row.querySelector('td:last-child span');
+        if(dot){dot.className='status-dot s-live';}
+        if(label){label.textContent='Live';label.style.color='var(--green)';}
+      }
+    });
+  }
+  if(hasLive) document.getElementById('social-source-badge').textContent='Partial live';
 }
 
 function updateTimestamp(){
