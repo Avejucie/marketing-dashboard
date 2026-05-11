@@ -2345,10 +2345,11 @@ async function fetchSmartMovingJobs(){
   const apiKey = get('sm-api-key');
   if(!apiKey) return null;
   try{
-    const startDate = new Date(currentYear, currentMonth, 1).toISOString().slice(0,10);
-    const endDate = new Date(currentYear, currentMonth+1, 0).toISOString().slice(0,10);
+    const fromDate = `${currentYear}${String(currentMonth+1).padStart(2,'0')}01`;
+    const lastDay = new Date(currentYear, currentMonth+1, 0).getDate();
+    const toDate = `${currentYear}${String(currentMonth+1).padStart(2,'0')}${String(lastDay).padStart(2,'0')}`;
     const r = await fetch(
-      `https://api.smartmoving.com/api/jobs?StartDate=${startDate}&EndDate=${endDate}&PageSize=200&Page=1`,
+      `https://api-public.smartmoving.com/v1/api/leads?From=${fromDate}&To=${toDate}&PageSize=200&Page=1`,
       {headers:{'Content-Type':'application/json','x-api-key':apiKey}}
     );
     if(!r.ok) return null;
@@ -2363,18 +2364,20 @@ function applySmartMovingJobs(smRawJobs){
   const existingIds=new Set(cache.jobs.filter(j=>j.smId).map(j=>j.smId));
   let added=0;
   smRawJobs.forEach(job=>{
-    const id=String(job.id||job.jobId||job.Id||job.quoteNumber||job.QuoteNumber||'');
+    // Leads API uses these field names
+    const id=String(job.id||job.leadId||job.opportunityId||job.Id||job.quoteNumber||job.QuoteNumber||'');
     if(id&&existingIds.has(id)) return;
-    const status=(job.status||job.Status||'').toLowerCase();
-    // Accept all statuses — SmartMoving may use different terms
-    const total=parseFloat(job.totalAmount||job.revenue||job.total||job.Total||job.amount||0);
-    const rawSource=job.source||job.Source||job.leadSource||job.LeadSource||job.referralSource||job.ReferralSource||job.howDidYouHearAboutUs||'';
+    const total=parseFloat(job.totalAmount||job.estimatedRevenue||job.revenue||job.total||job.Total||job.amount||0);
+    // Leads API uses "referralSource" for how they heard about us
+    const rawSource=job.referralSource||job.ReferralSource||job.source||job.Source||job.leadSource||job.LeadSource||job.howDidYouHearAboutUs||'';
     const mappedSource=smChannelName(rawSource)||rawSource||'Other';
-    const date=(job.serviceDate||job.moveDate||job.jobDate||job.date||job.ServiceDate||job.MoveDate||new Date().toISOString()).slice(0,10);
-    const moveSize=job.moveSize||job.MoveSize||job.size||'';
-    const opportunityType=job.opportunityType||job.OpportunityType||job.jobType||job.type||'';
-    const customerName=job.customerName||job.CustomerName||job.name||'';
-    const quoteNumber=job.quoteNumber||job.QuoteNumber||id||'';
+    // Leads API uses "moveDate" or "serviceDateFrom"
+    const rawDate=job.moveDate||job.serviceDateFrom||job.serviceDate||job.jobDate||job.date||job.MoveDate||job.createdDate||'';
+    const date=rawDate?String(rawDate).slice(0,10):new Date().toISOString().slice(0,10);
+    const moveSize=job.moveSize||job.MoveSize||job.size||job.moveSizeDescription||'';
+    const opportunityType=job.opportunityType||job.OpportunityType||job.jobType||job.type||job.moveType||'';
+    const customerName=job.customerName||job.CustomerName||job.contactName||job.name||'';
+    const quoteNumber=job.quoteNumber||job.QuoteNumber||job.opportunityNumber||id||'';
     cache.jobs.push({smId:id,date,source:mappedSource,rawSource,moveSize,opportunityType,customerName,quoteNumber,total,note:moveSize||opportunityType||''});
     if(id) existingIds.add(id);
     added++;
