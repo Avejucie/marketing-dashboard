@@ -1742,6 +1742,8 @@ function deleteSmJob(ji){
   saveSmJobs(currentYear,currentMonth,cache);
   renderROIPage();
 }
+
+function renderBudgetCharts(data){
   const channels=data.channels||[];
   // 6-month trend
   const months6=[];
@@ -2463,24 +2465,22 @@ function addMerchItem(){
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
-document.addEventListener('keydown', e=>{
-  if(e.key>='0'&&e.key<='9'||e.key==='Backspace') return; // no lock screen to handle
+document.addEventListener('DOMContentLoaded', ()=>{
+  updateMonthDisplay();
+  updateSyncBadge('local');
+  renderSocial();
+  updateTimestamp();
+  loadSettings().then(()=>{
+    updateBadges();
+    renderCurrentPage();
+    if(isSupabaseConfigured()){
+      loadBudgetDataSync(currentYear,currentMonth).then(d=>{
+        if(d) renderBudget();
+      });
+    }
+  });
+  setInterval(()=>refreshAll(null),300000);
 });
-
-updateMonthDisplay();
-updateSyncBadge('local');
-renderSocial();
-updateTimestamp();
-loadSettings().then(()=>{
-  updateBadges();
-  renderCurrentPage();
-  if(isSupabaseConfigured()){
-    loadBudgetDataSync(currentYear,currentMonth).then(d=>{
-      if(d) renderBudget();
-    });
-  }
-});
-setInterval(()=>refreshAll(null),300000);
 </script>
 </body>
 </html>
