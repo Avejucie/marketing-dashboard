@@ -1260,10 +1260,22 @@ function renderSocial(){
     const rate=((data.engagements/data.impressions)*100).toFixed(1)+'%';
     document.getElementById('s-engrate').textContent=rate;
     // platform table
+    const liveplatforms={
+      fb: !!(get('meta-token')&&get('meta-page-id')),
+      ig: !!(get('meta-token')&&get('ig-id')),
+      yt: !!(get('yt-key')&&get('yt-channel')),
+      tt: !!get('tt-token'),
+      li: !!(get('li-token')&&get('li-org')),
+      gb: !!get('gbp-token')
+    };
     const tbody=document.getElementById('plat-tbody');
     tbody.innerHTML=PLATFORM_META.map(p=>{
       const pd=data.platforms[p.key];
       const er=pd.impressions>0?((pd.interactions/pd.impressions)*100).toFixed(1)+'%':'–';
+      const isLive=liveplatforms[p.key];
+      const statusHtml=isLive
+        ?`<span style="font-size:11px;color:var(--green)"><span class="status-dot s-live"></span>Live</span>`
+        :`<span style="font-size:11px;color:var(--amber)"><span class="status-dot s-demo"></span>Demo</span>`;
       return `<tr>
         <td><div style="display:flex;align-items:center;gap:9px">
           <div class="plat-icon" style="background:${p.bg};color:${p.col};width:28px;height:28px;border-radius:7px;font-size:10px">${p.icon}</div>
@@ -1273,7 +1285,7 @@ function renderSocial(){
         <td>${pd.impressions.toLocaleString()}</td>
         <td>${pd.interactions.toLocaleString()}</td>
         <td>${er}</td>
-        <td><span style="font-size:11px;color:var(--amber)"><span class="status-dot s-demo"></span>Demo</span></td>
+        <td>${statusHtml}</td>
       </tr>`;
     }).join('');
     // charts
